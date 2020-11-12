@@ -4,14 +4,11 @@ inputs:
   GAP_PKGS_TO_CLONE:
     description: 'the gap packages to clone'
     required: false
-    default: []
+    default: ''
   GAPBRANCH:
     description: 'the gap branch to clone'
     required: false
     default: 'master'
-env:
-  GAP_PKGS_TO_CLONE: ${{ inputs.GAP_PKGS_TO_CLONE }}
-  GAPBRANCH: ${{ inputs.GAPBRANCH }}
 runs:
   using: "composite"
   steps:
@@ -20,6 +17,8 @@ runs:
         shell: bash
       - name: "Compile GAP and download packages"
         run:  scripts/build_gap.sh
+        env:
+          GAP_PKGS_TO_CLONE: ${{ inputs.GAP_PKGS_TO_CLONE }}
         shell: bash
       - name: "Prepare the package"
         run:  scripts/build_pkg.sh
