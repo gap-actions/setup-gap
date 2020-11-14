@@ -2,7 +2,11 @@ name: 'Setup GAP for package testing'
 description: 'Download and compile CI scripts, GAP and its packages'
 inputs:
   GAP_PKGS_TO_CLONE:
-    description: 'the gap packages to clone'
+    description: 'the GAP packages to clone'
+    required: false
+    default: ''
+  GAP_PKGS_TO_BUILD:
+    description: 'the GAP packages to build'
     required: false
     default: ''
   GAPBRANCH:
@@ -13,15 +17,17 @@ runs:
   using: "composite"
   steps:
       - name: "Download CI scripts"
-        run:  git clone https://github.com/gap-system/pkg-ci-scripts.git scripts
+        run:  git clone https://github.com/gap-system/pkg-ci-scripts.git
         shell: bash
       - name: "Compile GAP and download packages"
-        run:  scripts/build_gap.sh
+        run:  pkg-ci-scripts/build_gap.sh
         env:
           GAP_PKGS_TO_CLONE: ${{ inputs.GAP_PKGS_TO_CLONE }}
+          GAP_PKGS_TO_BUILD: ${{ inputs.GAP_PKGS_TO_BUILD }}
+          GAPBRANCH: ${{ inputs.GAPBRANCH }}
         shell: bash
       - name: "Prepare the package"
-        run:  scripts/build_pkg.sh
+        run:  pkg-ci-scripts/build_pkg.sh
         shell: bash
       - run: ${{ github.action_path }}/goodbye.sh
         shell: bash
