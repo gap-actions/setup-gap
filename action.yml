@@ -35,6 +35,20 @@ runs:
           GAPBRANCH: ${{ inputs.GAPBRANCH }}
           HPCGAP: ${{ inputs.HPCGAP }}
         shell: bash
+      - name: "If package is to be built in 32bit, install dependencies"
+        run: |
+          if [ ${{inputs.ABI}} = '32' ]
+          then
+            packages=(
+              libgmp-dev:i386
+              libreadline-dev:i386
+              zlib1g-dev:i386
+              gcc-multilib
+              g++-multilib
+            )
+            sudo apt-get install "${packages[@]}"
+          fi
+        shell: bash
       - name: "Prepare the package"
         run:  pkg-ci-scripts/build_pkg.sh
         env:
