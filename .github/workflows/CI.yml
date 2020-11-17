@@ -1,0 +1,35 @@
+name: CI
+
+# Trigger the workflow on push or pull request
+on:
+  - push
+  - pull_request
+
+jobs:
+  test:
+    name: ${{ matrix.gap-branch }} ${{ matrix.ABI }} - HPCGAP ${{ matrix.HPCGAP }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        gap-branch:
+          - master
+        GAP_PKGS_TO_BUILD:
+          - ''
+          - 'io profiling'
+        HPCGAP:
+          - no
+          - yes
+        ABI:
+          - ''
+          - 32
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+          GAPBRANCH: ${{ matrix.gap-branch }}
+          GAP_PKGS_TO_BUILD: ${{ matrix.GAP_PKGS_TO_BUILD }}
+          HPCGAP: ${{ matrix.HPCGAP }}
+          ABI: ${{ matrix.ABI }}
