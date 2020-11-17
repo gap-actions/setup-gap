@@ -39,8 +39,8 @@ runs:
         run: |
           if [ ${{inputs.ABI}} = '32' ]
           then
-            dpkg --add-architecture i386
-            apt-get update
+            sudo dpkg --add-architecture i386
+            sudo apt-get update
             packages=(
               libgmp-dev:i386
               libreadline-dev:i386
