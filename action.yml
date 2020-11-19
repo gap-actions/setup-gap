@@ -29,7 +29,7 @@ runs:
         shell: bash
       - name: "Install dependencies"
         run: |
-          if [ ${{inputs.ABI}} == '32' ];
+          if [ "${{inputs.ABI}}x" = "32x" ];
           then
             sudo dpkg --add-architecture i386
             sudo apt-get update
@@ -51,11 +51,11 @@ runs:
         shell: bash
       - name: "Handle GAP_PKGS_TO_BUILD default value"
         run: |
-          if [ ${{ inputs.GAP_PKGS_TO_BUILD }} == 'default' ];
+          if [ "${{inputs.GAP_PKGS_TO_BUILD}}x" = "defaultx" ];
           then
-            GAP_PKGS_TO_BUILD='io profiling'
+            GAP_PKGS_TO_BUILD="io profiling"
           else
-            GAP_PKGS_TO_BUILD=${{ inputs.GAP_PKGS_TO_BUILD }}
+            GAP_PKGS_TO_BUILD="${{inputs.GAP_PKGS_TO_BUILD}}"
           fi
         shell:  bash
       - name: "Compile GAP and download packages"
