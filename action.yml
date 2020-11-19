@@ -49,12 +49,21 @@ runs:
           fi
           sudo apt-get install "${packages[@]}"
         shell: bash
+      - name: "Handle GAP_PKGS_TO_BUILD default value"
+        run: |
+          if [ ${{ inputs.GAP_PKGS_TO_BUILD }} = 'default' ]
+          then
+            GAP_PKGS_TO_BUILD='io profiling'
+          else
+            GAP_PKGS_TO_BUILD=${{ inputs.GAP_PKGS_TO_BUILD }}
+          fi
+        shell:  bash
       - name: "Compile GAP and download packages"
         run:  pkg-ci-scripts/build_gap.sh
         env:
           ABI: ${{ inputs.ABI }}
           GAP_PKGS_TO_CLONE: ${{ inputs.GAP_PKGS_TO_CLONE }}
-          GAP_PKGS_TO_BUILD: ${{ inputs.GAP_PKGS_TO_BUILD }}
+          GAP_PKGS_TO_BUILD: ${{ env.GAP_PKGS_TO_BUILD }}
           GAPBRANCH: ${{ inputs.GAPBRANCH }}
           HPCGAP: ${{ inputs.HPCGAP }}
         shell: bash
