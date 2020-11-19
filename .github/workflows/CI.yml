@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.gap-branch }} ${{ matrix.ABI }} - HPCGAP ${{ matrix.HPCGAP }} - Packages ${{ matrix.GAP_PKGS_TO_BUILD }} -  ${{ matrix.os }}
+    name: ${{ matrix.gap-branch }} ${{ matrix.ABI }} - Packages ${{ matrix.GAP_PKGS_TO_BUILD }} - HPCGAP ${{ matrix.HPCGAP }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -15,21 +15,27 @@ jobs:
         os: [ubuntu-latest]
         gap-branch:
           - master
+        ABI: ['']
         GAP_PKGS_TO_BUILD:
           - ''
           - 'default'
-        HPCGAP:
-          - no
-          - yes
-        ABI:
-          - ''
-          - 32
+        HPCGAP: ['no']
+        include:
+          - os: ubuntu-latest
+            gap-branch: master
+            GAP_PKGS_TO_BUILD: ''
+            HPCGAP: yes
+          - os: ubuntu-latest
+            gap-branch: master
+            ABI: 32
+            GAP_PKGS_TO_BUILD: 'default'
+            HPCGAP: no
 
     steps:
       - uses: actions/checkout@v2
       - uses: ./
         with:
           GAPBRANCH: ${{ matrix.gap-branch }}
+          ABI: ${{ matrix.ABI }}
           GAP_PKGS_TO_BUILD: ${{ matrix.GAP_PKGS_TO_BUILD }}
           HPCGAP: ${{ matrix.HPCGAP }}
-          ABI: ${{ matrix.ABI }}
