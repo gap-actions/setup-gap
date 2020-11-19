@@ -56,5 +56,3 @@ runs:
         env:
           ABI: ${{ inputs.ABI }}
         shell: bash
-      - run: ${{ github.action_path }}/goodbye.sh
-        shell: bash
