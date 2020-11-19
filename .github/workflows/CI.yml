@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.gap-branch }} ${{ matrix.ABI }} - HPCGAP ${{ matrix.HPCGAP }} - Packages: ${{ matrix.GAP_PKGS_TO_BUILD }} -  ${{ matrix.os }}
+    name: ${{ matrix.gap-branch }} ${{ matrix.ABI }} - HPCGAP ${{ matrix.HPCGAP }} - Packages ${{ matrix.GAP_PKGS_TO_BUILD }} -  ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
