@@ -27,15 +27,7 @@ runs:
       - name: "Download CI scripts"
         run:  git clone https://github.com/gap-system/pkg-ci-scripts.git
         shell: bash
-      - name: "Compile GAP and download packages"
-        run:  pkg-ci-scripts/build_gap.sh
-        env:
-          GAP_PKGS_TO_CLONE: ${{ inputs.GAP_PKGS_TO_CLONE }}
-          GAP_PKGS_TO_BUILD: ${{ inputs.GAP_PKGS_TO_BUILD }}
-          GAPBRANCH: ${{ inputs.GAPBRANCH }}
-          HPCGAP: ${{ inputs.HPCGAP }}
-        shell: bash
-      - name: "If package is to be built in 32bit, install dependencies"
+      - name: "Install dependencies"
         run: |
           if [ ${{inputs.ABI}} = '32' ]
           then
@@ -48,8 +40,23 @@ runs:
               gcc-multilib
               g++-multilib
             )
-            sudo apt-get install "${packages[@]}"
+          else
+            packages=(
+              libgmp-dev
+              libreadline-dev
+              zlib1g-dev
+            )
           fi
+          sudo apt-get install "${packages[@]}"
+        shell: bash
+      - name: "Compile GAP and download packages"
+        run:  pkg-ci-scripts/build_gap.sh
+        env:
+          ABI: ${{ inputs.ABI }}
+          GAP_PKGS_TO_CLONE: ${{ inputs.GAP_PKGS_TO_CLONE }}
+          GAP_PKGS_TO_BUILD: ${{ inputs.GAP_PKGS_TO_BUILD }}
+          GAPBRANCH: ${{ inputs.GAPBRANCH }}
+          HPCGAP: ${{ inputs.HPCGAP }}
         shell: bash
       - name: "Prepare the package"
         run:  pkg-ci-scripts/build_pkg.sh
