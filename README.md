@@ -4,6 +4,11 @@ This GitHub action downloads and prepares an instance of GAP.
 It is intended to be used by the Continuous Integration (CI) action of a GAP
 package, that is by an action which runs a package's test suite.
 
+## Supported OSes
+
+This action can be run on macOS and Ubuntu.
+
+
 ## Usage
 
 The action `setup-gap-for-packages` has to be called by the workflow of a GAP

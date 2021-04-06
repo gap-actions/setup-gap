@@ -29,25 +29,33 @@ runs:
         shell: bash
       - name: "Install dependencies"
         run: |
-          if [ "${{inputs.ABI}}x" = "32x" ];
-          then
-            sudo dpkg --add-architecture i386
-            sudo apt-get update
-            packages=(
-              libgmp-dev:i386
-              libreadline-dev:i386
-              zlib1g-dev:i386
-              gcc-multilib
-              g++-multilib
-            )
-          else
-            packages=(
-              libgmp-dev
-              libreadline-dev
-              zlib1g-dev
-            )
+          echo "Installing dependencies"
+          if [ "${{runner.os}}" = "Linux" ]; then
+            if [ "${{inputs.ABI}}" = "32" ]; then
+              sudo dpkg --add-architecture i386
+              sudo apt-get update
+              packages=(
+                libgmp-dev:i386
+                libreadline-dev:i386
+                zlib1g-dev:i386
+                gcc-multilib
+                g++-multilib
+              )
+            else
+              packages=(
+                libgmp-dev
+                libreadline-dev
+                zlib1g-dev
+              )
+            fi
+            sudo apt-get install "${packages[@]}"
+          elif [ "${{runner.os}}" = "macOS" ]; then
+            if [ "${{inputs.ABI}}" = "32" ]; then
+              echo "Can't use macOS with 32bit!"
+              exit 1
+            fi
+            brew install gmp readline zlib && brew link readline zlib
           fi
-          sudo apt-get install "${packages[@]}"
         shell: bash
       - name: "Compile GAP and download packages"
         run: |

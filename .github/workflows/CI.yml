@@ -30,6 +30,10 @@ jobs:
             ABI: 32
             GAP_PKGS_TO_BUILD: 'default'
             HPCGAP: no
+          - os: macos-latest
+            gap-branch: master
+            GAP_PKGS_TO_BUILD: ''
+            HPCGAP: no
 
     steps:
       - uses: actions/checkout@v2
