@@ -60,7 +60,7 @@ runs:
       - name: "Compile GAP and download packages"
         run: |
           # Handle GAP_PKGS_TO_BUILD default value
-          if [ "${{inputs.GAP_PKGS_TO_BUILD}}x" = "defaultx" ];
+          if [ "${{inputs.GAP_PKGS_TO_BUILD}}" = "default" ];
           then
             export GAP_PKGS_TO_BUILD="io profiling"
           else
