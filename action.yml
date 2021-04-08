@@ -73,8 +73,3 @@ runs:
           GAPBRANCH: ${{ inputs.GAPBRANCH }}
           HPCGAP: ${{ inputs.HPCGAP }}
         shell: bash
-      - name: "Prepare the package"
-        run:  pkg-ci-scripts/build_pkg.sh
-        env:
-          ABI: ${{ inputs.ABI }}
-        shell: bash

@@ -12,12 +12,11 @@ This action can be run on macOS and Ubuntu.
 ## Usage
 
 The action `setup-gap-for-packages` has to be called by the workflow of a GAP
-package `gap-package`.
+package.
 By default it
 - downloads and compiles the master branch of GAP,
-- downloads the packages distributed with GAP,
-- compiles the packages `io` and `profiling`, and
-- if necessary, compiles `gap-package`.
+- downloads the packages distributed with GAP, and
+- compiles the packages `io` and `profiling`
 
 Its behaviour can be customized via the inputs below.
 
