@@ -54,7 +54,7 @@ runs:
               echo "Can't use macOS with 32bit!"
               exit 1
             fi
-            brew install gmp readline zlib && brew link readline zlib
+            brew install gmp zlib && brew link zlib
           fi
         shell: bash
       - name: "Compile GAP and download packages"
