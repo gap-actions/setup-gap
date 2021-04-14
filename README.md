@@ -1,4 +1,4 @@
-# setup-gap-for-packages V2
+# setup-gap V2
 
 This GitHub action downloads and prepares an instance of GAP.
 It is intended to be used by the Continuous Integration (CI) action of a GAP
@@ -11,7 +11,7 @@ This action can be run on macOS and Ubuntu.
 
 ## Usage
 
-The action `setup-gap-for-packages` has to be called by the workflow of a GAP
+The action `setup-gap` has to be called by the workflow of a GAP
 package.
 By default it
 - downloads and compiles the master branch of GAP,
@@ -44,12 +44,12 @@ All of the following inputs are optional.
 
 ## Contact
 Please submit bug reports, suggestions for improvements and patches via
-the [issue tracker](https://github.com/gap-actions/setup-gap-for-packages/issues)
+the [issue tracker](https://github.com/gap-actions/setup-gap/issues)
 or via email to
 [Sergio Siccha](mailto:siccha@mathematik.uni-kl.de).
 
 ## License
-The action `setup-gap-for-packages` is free software; you can redistribute
+The action `setup-gap` is free software; you can redistribute
 and/or modify it under the terms of the GNU General Public License as published
 by the Free Software Foundation; either version 2 of the License, or (at your
 opinion) any later version. For details, see the file `LICENSE` distributed
