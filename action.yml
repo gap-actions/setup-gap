@@ -21,12 +21,13 @@ inputs:
     description: 'set to 32 to use 32bit build flags for the package'
     required: false
     default: ''
+  GAP_BOOTSTRAP:
+    description: 'make bootstrap-pkg-? (i.e. full/minimal)'
+    required: false
+    default: 'full'
 runs:
   using: "composite"
   steps:
-      - name: "Download CI scripts"
-        run:  git clone https://github.com/gap-system/pkg-ci-scripts.git
-        shell: bash
       - name: "Install dependencies"
         run: |
           echo "Installing dependencies"
@@ -57,8 +58,73 @@ runs:
             brew install gmp zlib && brew link zlib
           fi
         shell: bash
-      - name: "Compile GAP and download packages"
+
+        # pkg-ci-scripts is not used by this Action, but currently the other
+        # gap-actions Actions still assume that this Action has installed it.
+        # This step should therefore be removed eventually
+      - name: "Download CI scripts"
+        shell: bash
+        run: git clone https://github.com/gap-system/pkg-ci-scripts.git
+
+      - name: "Clone GAP"
+        shell: bash
+        run: git clone --depth=2 -b ${{ inputs.GAPBRANCH }} https://github.com/gap-system/gap.git $HOME/gap
+
+      - name: "Build GAP and download packages"
+        shell: bash
+        env:
+          ABI: ${{ inputs.ABI }}
         run: |
+          cd $HOME/gap
+          
+          # for HPC-GAP, add suitable flags
+          if [[ ${{ inputs.HPCGAP }} = yes ]]; then
+            GAP_CONFIGFLAGS="$GAP_CONFIGFLAGS --enable-hpcgap"
+          fi
+          
+          # build GAP in a subdirectory
+          ./autogen.sh
+          ./configure $GAP_CONFIGFLAGS
+          make -j4 V=1
+          
+          # download packages; instruct wget to retry several times if the
+          # connection is refused, to work around intermittent failures.
+          # for older versions, set WGET, for GAP >= 4.11 set DOWNLOAD
+          WGET="wget -N --no-check-certificate --tries=5 --waitretry=5 --retry-connrefused"
+          make bootstrap-pkg-${{ inputs.GAP_BOOTSTRAP }} DOWNLOAD="$WGET" WGET="$WGET"
+          
+      - name: "Clone additional GAP packages"
+        shell: bash
+        run: |
+          # optionally: clone specific package versions, in case we need to test
+          # with development versions
+          cd $HOME/gap/pkg
+          for pkg in ${{ inputs.GAP_PKGS_TO_CLONE }}; do
+              # delete any existing variants of the package to avoid multiple versions
+              # from being compiled later on
+              rm -rf "$pkg"*
+              if [[ "$pkg" =~ ^http ]] ; then
+                  # looks like a full URL
+                  git clone "$pkg"
+              elif [[ "$pkg" =~ ^[^/]+/[^/]+$ ]] ; then
+                  # looks like ORG/REPO
+                  git clone https://github.com/"$pkg"
+              elif [[ "$pkg" =~ ^[^/]+$ ]] ; then
+                  # looks like just a REPO name
+                  git clone https://github.com/gap-packages/"$pkg"
+              else
+                  echo "Invalid package name or URL '$pkg' in GAP_PKGS_TO_CLONE"
+                  exit 1
+              fi
+          done
+          
+      - name: "Build additional GAP packages"
+        shell:  bash
+        env:
+          ABI: ${{ inputs.ABI }}
+        run: |
+          # build some packages; default is to build 'io' and 'profiling', in order to
+          # generate coverage results.
           # Handle GAP_PKGS_TO_BUILD default value
           if [ "${{inputs.GAP_PKGS_TO_BUILD}}" = "default" ];
           then
@@ -66,10 +132,9 @@ runs:
           else
             export GAP_PKGS_TO_BUILD="${{inputs.GAP_PKGS_TO_BUILD}}"
           fi
-          pkg-ci-scripts/build_gap.sh
-        env:
-          ABI: ${{ inputs.ABI }}
-          GAP_PKGS_TO_CLONE: ${{ inputs.GAP_PKGS_TO_CLONE }}
-          GAPBRANCH: ${{ inputs.GAPBRANCH }}
-          HPCGAP: ${{ inputs.HPCGAP }}
-        shell: bash
+
+          BuildPackagesOptions="--strict"
+          cd $HOME/gap/pkg
+          for pkg in ${GAP_PKGS_TO_BUILD-io profiling}; do
+              ../bin/BuildPackages.sh ${BuildPackagesOptions} $pkg*
+          done
