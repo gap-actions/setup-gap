@@ -41,6 +41,9 @@ All of the following inputs are optional.
 - `ABI`:
    - Set to `32` to use 32bit build flags for the package
    - default: `''`
+- `GAP_BOOTSTRAP`
+   - Which packages to build GAP with (options: full or minimal)
+   - default: `'full'`
 
 ## Contact
 Please submit bug reports, suggestions for improvements and patches via
