@@ -125,18 +125,9 @@ runs:
         env:
           ABI: ${{ inputs.ABI }}
         run: |
-          # build some packages; default is to build 'io' and 'profiling', in order to
-          # generate coverage results.
-          # Handle GAP_PKGS_TO_BUILD default value
-          if [ "${{inputs.GAP_PKGS_TO_BUILD}}" = "default" ];
-          then
-            export GAP_PKGS_TO_BUILD="io profiling"
-          else
-            export GAP_PKGS_TO_BUILD="${{inputs.GAP_PKGS_TO_BUILD}}"
-          fi
-
+          # build some packages
           BuildPackagesOptions="--strict"
           cd $HOME/gap/pkg
-          for pkg in ${GAP_PKGS_TO_BUILD-io profiling}; do
+          for pkg in ${{inputs.GAP_PKGS_TO_BUILD}}; do
               ../bin/BuildPackages.sh ${BuildPackagesOptions} $pkg*
           done
