@@ -59,13 +59,6 @@ runs:
           fi
         shell: bash
 
-        # pkg-ci-scripts is not used by this Action, but currently the other
-        # gap-actions Actions still assume that this Action has installed it.
-        # This step should therefore be removed eventually
-      - name: "Download CI scripts"
-        shell: bash
-        run: git clone https://github.com/gap-system/pkg-ci-scripts.git
-
       - name: "Clone GAP"
         shell: bash
         run: git clone --depth=2 -b ${{ inputs.GAPBRANCH }} https://github.com/gap-system/gap.git $HOME/gap
