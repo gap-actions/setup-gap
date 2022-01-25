@@ -17,25 +17,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        gap-branch:
-          - master
-        ABI: ['']
-        GAP_PKGS_TO_BUILD:
-          - ''
-          - 'default'
-        HPCGAP: ['no']
         include:
-          - os: ubuntu-latest
-            gap-branch: master
-            GAP_PKGS_TO_BUILD: ''
-            HPCGAP: yes
-          - os: ubuntu-latest
-            gap-branch: master
-            ABI: 32
-            GAP_PKGS_TO_BUILD: 'default'
-            HPCGAP: no
-          - os: macos-latest
+          - os: windows-latest
+            ABI: ''
             gap-branch: master
             GAP_PKGS_TO_BUILD: ''
             HPCGAP: no
