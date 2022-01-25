@@ -5,6 +5,9 @@ on:
   - push
   - pull_request
 
+env:
+  CHERE_INVOKING: 1
+
 jobs:
   test:
     name: ${{ matrix.gap-branch }} ${{ matrix.ABI }} - Packages ${{ matrix.GAP_PKGS_TO_BUILD }} - HPCGAP ${{ matrix.HPCGAP }} - ${{ matrix.os }}
@@ -39,6 +42,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - if: ${{ matrix.os == 'windows-latest' }}
+        uses: gap-actions/setup-cygwin@v1
       - uses: ./
         with:
           GAPBRANCH: ${{ matrix.gap-branch }}
