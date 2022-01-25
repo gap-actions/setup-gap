@@ -59,21 +59,21 @@ runs:
             fi
             brew install gmp zlib && brew link zlib
           fi
-        shell: bash
+        shell: C:\cygwin64\bin\bash.exe --login -o igncr '{0}'
 
         # pkg-ci-scripts is not used by this Action, but currently the other
         # gap-actions Actions still assume that this Action has installed it.
         # This step should therefore be removed eventually
       - name: "Download CI scripts"
-        shell: bash
+        shell: C:\cygwin64\bin\bash.exe --login -o igncr '{0}'
         run: git clone https://github.com/gap-system/pkg-ci-scripts.git
 
       - name: "Clone GAP"
-        shell: bash
+        shell: C:\cygwin64\bin\bash.exe --login -o igncr '{0}'
         run: git clone --depth=2 -b ${{ inputs.GAPBRANCH }} https://github.com/gap-system/gap.git $HOME/gap
 
       - name: "Build GAP and download packages"
-        shell: bash
+        shell: C:\cygwin64\bin\bash.exe --login -o igncr '{0}'
         env:
           ABI: ${{ inputs.ABI }}
         run: |
@@ -96,7 +96,7 @@ runs:
           make bootstrap-pkg-${{ inputs.GAP_BOOTSTRAP }} DOWNLOAD="$WGET" WGET="$WGET"
           
       - name: "Clone additional GAP packages"
-        shell: bash
+        shell: C:\cygwin64\bin\bash.exe --login -o igncr '{0}'
         run: |
           # optionally: clone specific package versions, in case we need to test
           # with development versions
@@ -121,7 +121,7 @@ runs:
           done
           
       - name: "Build additional GAP packages"
-        shell:  bash
+        shell: C:\cygwin64\bin\bash.exe --login -o igncr '{0}'
         env:
           ABI: ${{ inputs.ABI }}
         run: |
