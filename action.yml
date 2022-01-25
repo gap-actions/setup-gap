@@ -25,6 +25,8 @@ inputs:
     description: 'make bootstrap-pkg-? (i.e. full/minimal)'
     required: false
     default: 'full'
+env:
+  CHERE_INVOKING: 1
 runs:
   using: "composite"
   steps:
