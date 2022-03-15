@@ -65,7 +65,7 @@ runs:
         shell: bash
         run: git clone --depth=2 -b ${{ inputs.GAPBRANCH }} https://github.com/gap-system/gap.git $HOME/gap
 
-      - name: "Build GAP and download packages"
+      - name: "Build GAP"
         shell: bash
         env:
           ABI: ${{ inputs.ABI }}
@@ -82,6 +82,14 @@ runs:
           ./configure $GAP_CONFIGFLAGS
           make -j4 V=1
           
+          # make it available
+          ln -s $HOME/gap/bin/gap.sh /usr/local/bin/gap
+
+      - name: "Download packages"
+        shell: bash
+        run: |
+          cd $HOME/gap
+
           # download packages; instruct wget to retry several times if the
           # connection is refused, to work around intermittent failures.
           # for older versions, set WGET, for GAP >= 4.11 set DOWNLOAD
