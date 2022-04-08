@@ -5,48 +5,41 @@ on:
   - push
   - pull_request
 
-env:
-  CHERE_INVOKING: 1
-
 jobs:
   test:
-    name: ${{ matrix.gap-branch }} ${{ matrix.ABI }} - Packages ${{ matrix.GAP_PKGS_TO_BUILD }} - HPCGAP ${{ matrix.HPCGAP }} - ${{ matrix.os }}
+    name: ${{ matrix.gap-branch }} - Packages ${{ matrix.GAP_PKGS_TO_BUILD }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    container:
+      image: ghcr.io/wucas/${{ matrix.container }}
+      options: --user root
     # Don't run this twice on PRs for branches pushed to the same repository
     if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        gap-branch:
-          - master
-        ABI: ['']
+        container: [gap-4.11.1-minimal]
         GAP_PKGS_TO_BUILD:
           - ''
-          - 'default'
-        HPCGAP: ['no']
-        include:
-          - os: ubuntu-latest
-            gap-branch: master
-            GAP_PKGS_TO_BUILD: ''
-            HPCGAP: yes
-          - os: ubuntu-latest
-            gap-branch: master
-            ABI: 32
-            GAP_PKGS_TO_BUILD: 'default'
-            HPCGAP: no
-          - os: macos-latest
-            gap-branch: master
-            GAP_PKGS_TO_BUILD: ''
-            HPCGAP: no
+#        include:
+#          - os: ubuntu-latest
+#            gap-branch: master
+#            GAP_PKGS_TO_BUILD: ''
+#            HPCGAP: yes
+#          - os: ubuntu-latest
+#            gap-branch: master
+#            ABI: 32
+#            GAP_PKGS_TO_BUILD: 'default'
+#            HPCGAP: no
+#          - os: macos-latest
+#            gap-branch: master
+#            GAP_PKGS_TO_BUILD: ''
+#            HPCGAP: no
 
     steps:
-      - uses: actions/checkout@v2
-      - if: ${{ matrix.os == 'windows-latest' }}
-        uses: gap-actions/setup-cygwin@v1
+      - uses: actions/checkout@v3
+      #- if: ${{ matrix.os == 'windows-latest' }}
+      #  uses: gap-actions/setup-cygwin@v1
       - uses: ./
         with:
-          GAPBRANCH: ${{ matrix.gap-branch }}
-          ABI: ${{ matrix.ABI }}
           GAP_PKGS_TO_BUILD: ${{ matrix.GAP_PKGS_TO_BUILD }}
-          HPCGAP: ${{ matrix.HPCGAP }}
