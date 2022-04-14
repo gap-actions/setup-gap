@@ -105,7 +105,7 @@ runs:
           for pkg in ${{ inputs.GAP_PKGS_TO_CLONE }}; do
               # delete any existing variants of the package to avoid multiple versions
               # from being compiled later on
-              rm -rf "$pkg"*
+              rm -rf "${pkg##*/}"*
               if [[ "$pkg" =~ ^http ]] ; then
                   # looks like a full URL
                   git clone "$pkg"
