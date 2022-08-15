@@ -21,6 +21,10 @@ inputs:
     description: 'set to 32 to use 32bit build flags for the package'
     required: false
     default: ''
+  CONFIGFLAGS:
+    description: 'arguments to pass to the GAP configure script (e.g. --enable-debug)'
+    required: false
+    default: ''
   GAP_BOOTSTRAP:
     description: 'make bootstrap-pkg-? (i.e. full/minimal)'
     required: false
@@ -71,15 +75,15 @@ runs:
           ABI: ${{ inputs.ABI }}
         run: |
           cd $HOME/gap
-          
+          CONFIGFLAGS="${{ inputs.CONFIGFLAGS }}"
           # for HPC-GAP, add suitable flags
           if [[ ${{ inputs.HPCGAP }} = yes ]]; then
-            GAP_CONFIGFLAGS="$GAP_CONFIGFLAGS --enable-hpcgap"
+            CONFIGFLAGS="$CONFIGFLAGS --enable-hpcgap"
           fi
           
           # build GAP in a subdirectory
           ./autogen.sh
-          ./configure $GAP_CONFIGFLAGS
+          ./configure $CONFIGFLAGS
           make -j4 V=1
           
           # make it available
@@ -123,6 +127,7 @@ runs:
         run: |
           # build some packages
           BuildPackagesOptions="--strict"
+          shopt -s nocaseglob
           cd $HOME/gap/pkg
           for pkg in ${{inputs.GAP_PKGS_TO_BUILD}}; do
               ../bin/BuildPackages.sh ${BuildPackagesOptions} $pkg*
