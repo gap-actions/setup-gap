@@ -132,6 +132,7 @@ runs:
         run: |
           # build some packages
           BuildPackagesOptions="--strict"
+          shopt -s nocaseglob
           cd $HOME/gap/pkg
           for pkg in ${{inputs.GAP_PKGS_TO_BUILD}}; do
               ../bin/BuildPackages.sh ${BuildPackagesOptions} $pkg*
