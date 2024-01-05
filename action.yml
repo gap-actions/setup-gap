@@ -80,21 +80,21 @@ runs:
           if [[ ${{ inputs.HPCGAP }} = yes ]]; then
             CONFIGFLAGS="$CONFIGFLAGS --enable-hpcgap"
           fi
-          
+
           # build GAP in a subdirectory
           ./autogen.sh
           ./configure $CONFIGFLAGS
           make -j4 V=1
-          
+
           # make it available
-          ln -s $HOME/gap/bin/gap.sh /usr/local/bin/gap
+          ln -s $HOME/gap/gap /usr/local/bin/gap
 
           # download packages; instruct wget to retry several times if the
           # connection is refused, to work around intermittent failures.
           # for older versions, set WGET, for GAP >= 4.11 set DOWNLOAD
           WGET="wget -N --no-check-certificate --tries=5 --waitretry=5 --retry-connrefused"
           make bootstrap-pkg-${{ inputs.GAP_BOOTSTRAP }} DOWNLOAD="$WGET" WGET="$WGET"
-          
+
       - name: "Clone additional GAP packages"
         shell: C:\cygwin64\bin\bash.exe --login -o igncr '{0}'
         run: |
@@ -119,7 +119,7 @@ runs:
                   exit 1
               fi
           done
-          
+
       - name: "Build additional GAP packages"
         shell: C:\cygwin64\bin\bash.exe --login -o igncr '{0}'
         env:
