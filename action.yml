@@ -61,7 +61,7 @@ runs:
               echo "Can't use macOS with 32bit!"
               exit 1
             fi
-            brew install gmp zlib && brew link zlib
+            brew install gmp zlib autoconf && brew link zlib
           fi
         shell: bash
 
