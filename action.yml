@@ -1,139 +1,154 @@
 name: 'Setup GAP for package testing'
-description: 'Download and compile CI scripts, GAP and its packages'
+description: 'Download and compile GAP and its packages'
 inputs:
-  GAP_PKGS_TO_CLONE:
-    description: 'the GAP packages to clone'
+  gap-version:
+    description: 'The GAP version or branch to build'
+    required: false
+    default: 'latest'
+  repository:
+    description: 'The GitHub repository from which to clone GAP'
+    required: false
+    default: 'gap-system/gap'
+  configflags:
+    description: 'Arguments to pass to the GAP configure script (e.g. --enable-debug)'
     required: false
     default: ''
-  GAP_PKGS_TO_BUILD:
-    description: 'the GAP packages to build'
+  gap-pkgs-to-build:
+    description: 'A space-separated list of the GAP packages to build'
     required: false
-    default: 'io profiling'
-  GAPBRANCH:
-    description: 'the gap branch to clone'
-    required: false
-    default: 'master'
-  HPCGAP:
-    description: 'build HPC-GAP if set to yes'
-    required: false
-    default: 'no'
-  ABI:
-    description: 'set to 32 to use 32bit build flags for the package'
-    required: false
+    default: 'io json profiling'
+    deprecationMessage: 'This input will possibly be removed in the future, so do not rely on it too much'
+  token:
+    description: 'Token to authenticate with the GitHub API'
+    required: true
     default: ''
-  CONFIGFLAGS:
-    description: 'arguments to pass to the GAP configure script (e.g. --enable-debug)'
-    required: false
-    default: ''
-  GAP_BOOTSTRAP:
-    description: 'make bootstrap-pkg-? (i.e. full/minimal)'
-    required: false
-    default: 'full'
-env:
-  CHERE_INVOKING: 1
+
 runs:
   using: "composite"
   steps:
-      - name: "Install dependencies"
-        run: |
-          echo "Installing dependencies"
-          if [ "${{runner.os}}" = "Linux" ]; then
-            if [ "${{inputs.ABI}}" = "32" ]; then
-              sudo dpkg --add-architecture i386
-              sudo apt-get update
-              packages=(
-                libgmp-dev:i386
-                libreadline-dev:i386
-                zlib1g-dev:i386
-                gcc-multilib
-                g++-multilib
-              )
+  
+    - name: "Install dependencies"
+      shell: bash
+      if: ${{ runner.os != 'Windows' }}
+      run: |
+        if [[ "${{ runner.os }}" == "Linux" ]] ; then
+          sudo apt-get install libgmp-dev libreadline-dev zlib1g-dev
+        elif [[ "${{ runner.os }}" = "macOS" ]] ; then
+          brew install zlib autoconf && brew link zlib --force
+        fi
+
+    - name: "Determine GAP version"
+      id: version
+      shell: bash
+      run: |
+        VERSION=""
+        IS_RELEASE=false
+
+        # Select only those releases we wish to allow, with or without pre-releases
+
+        if [[ -z "${{ inputs.gap-version }}" || "${{ inputs.gap-version }}" == "latest" ]] ; then
+          echo "Version: latest release"
+          IS_RELEASE=true
+          VERSION=$(wget --header="Authorization: Bearer ${{ inputs.token }}" -qO- "https://api.github.com/repos/${{ inputs.repository }}/releases/latest" | jq -r '.tag_name')
+        elif [[ "${{ inputs.gap-version }}" =~ ^(master|main|default)$ ]] ; then
+          echo "Version: default branch"
+          VERSION=$(git ls-remote --symref https://github.com/${{ inputs.repository }}.git HEAD | head -n 1 | sed 's|ref: refs/heads/||; s|\tHEAD||')
+        else
+          echo "Checking releases"
+          GIT_RELS_JSON=$(wget --header="Authorization: Bearer ${{ inputs.token }}" -qO- "https://api.github.com/repos/${{ inputs.repository }}/releases")
+          GIT_RELS=$(echo "$GIT_RELS_JSON" | jq -r '.[].tag_name' | sort -V)
+          GIT_NPRS=$(echo "$GIT_RELS_JSON" | jq -r '.[] | select((.draft == false) and (.prerelease == false)) | .tag_name' | sort -V)
+
+          # Add "v" in front if missing
+          REL=${{ inputs.gap-version }}
+          REL=v${REL#v}
+          
+          if echo "$GIT_RELS" | grep -qx "$REL" ; then
+            echo "Version: exact release match"
+            IS_RELEASE=true
+            VERSION=$REL
+          elif echo "$GIT_NPRS" | grep -q "^$REL\." ; then
+            echo "Version: expanded to release"
+            IS_RELEASE=true
+            VERSION=$(echo "$GIT_NPRS" | grep "^$REL\." | tail -n 1)
+          else
+            echo "Checking branches and tags"
+            if git ls-remote --heads https://github.com/${{ inputs.repository }}.git | sed 's|.*refs/heads/||' | grep -qx "${{ inputs.gap-version }}" ; then
+              echo "Version: exact branch match"
+              VERSION=${{ inputs.gap-version }}
+            elif git ls-remote --tags --refs https://github.com/${{ inputs.repository }}.git | sed 's|.*refs/tags/||' | grep -qx "${{ inputs.gap-version }}" ; then
+              echo "Version: exact tag match"
+              VERSION=${{ inputs.gap-version }}
             else
-              packages=(
-                libgmp-dev
-                libreadline-dev
-                zlib1g-dev
-              )
-            fi
-            sudo apt-get install "${packages[@]}"
-          elif [ "${{runner.os}}" = "macOS" ]; then
-            if [ "${{inputs.ABI}}" = "32" ]; then
-              echo "Can't use macOS with 32bit!"
+              echo "No release, branch or tag with name ${{ inputs.gap-version }} found"
               exit 1
             fi
-            brew install gmp zlib autoconf && brew link zlib
           fi
-        shell: bash
+        fi
 
-      - name: "Clone GAP"
-        shell: bash
-        run: git clone --depth=2 -b ${{ inputs.GAPBRANCH }} https://github.com/gap-system/gap.git $HOME/gap
+        echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "IS_RELEASE=$IS_RELEASE" >> "$GITHUB_OUTPUT"
 
-      - name: "Build GAP"
-        shell: bash
-        env:
-          ABI: ${{ inputs.ABI }}
-        run: |
-          cd $HOME/gap
-          CONFIGFLAGS="${{ inputs.CONFIGFLAGS }}"
-          # for HPC-GAP, add suitable flags
-          if [[ ${{ inputs.HPCGAP }} = yes ]]; then
-            CONFIGFLAGS="$CONFIGFLAGS --enable-hpcgap"
-          fi
+    - name: "Set GAPROOT"
+      shell: bash
+      run: |
+        GAPROOT="$HOME/gap"
+        mkdir -p $GAPROOT
+        echo "GAPROOT=$GAPROOT" >> "$GITHUB_ENV"
+        
+    - name: "Download or clone GAP"
+      shell: bash
+      env:
+        VERSION: ${{ steps.version.outputs.VERSION }}
+        IS_RELEASE: ${{ steps.version.outputs.IS_RELEASE }}
+      run: |
+        if [[ "$IS_RELEASE" == "true" ]] ; then
+          WGET="wget -q -N --no-check-certificate --tries=5 --waitretry=5 --retry-connrefused"
+          URL=https://github.com/${{ inputs.repository }}/releases/download/$VERSION/
+          FILE=gap-${VERSION#v}.tar.gz
+          $WGET $URL$FILE
+          tar xzf $FILE -C $GAPROOT --strip-components=1
+        else
+          git clone --branch $VERSION --depth=1 --single-branch https://github.com/${{ inputs.repository }}.git $GAPROOT
+        fi
 
-          # build GAP in a subdirectory
+    - name: "Build GAP"
+      shell: bash
+      run: |
+        cd $GAPROOT
+
+        if [ -f "autogen.sh" ] ; then
           ./autogen.sh
-          ./configure $CONFIGFLAGS
-          make -j4 V=1
+        fi
+        ./configure "${{ inputs.configflags }}"
+        make -j4 V=1
 
-          # make it available
-          ln -s $HOME/gap/gap /usr/local/bin/gap
+        # Add to PATH
+        if [ -f "$GAPROOT/gap" ] ; then
+          ln -s $GAPROOT/gap /usr/local/bin/gap
+        else
+          echo -e '#!/bin/sh\nsh '"$GAPROOT"'/bin/gap.sh "$@"\n' > /usr/local/bin/gap
+        fi
 
-      - name: "Download packages"
-        shell: bash
-        run: |
-          cd $HOME/gap
+        # Just to be sure it's executable
+        chmod +x /usr/local/bin/gap
 
-          # download packages; instruct wget to retry several times if the
-          # connection is refused, to work around intermittent failures.
-          # for older versions, set WGET, for GAP >= 4.11 set DOWNLOAD
-          WGET="wget -N --no-check-certificate --tries=5 --waitretry=5 --retry-connrefused"
-          make bootstrap-pkg-${{ inputs.GAP_BOOTSTRAP }} DOWNLOAD="$WGET" WGET="$WGET"
+    - name: "Download GAP packages"
+      shell: bash
+      if: ${{ steps.version.outputs.IS_RELEASE == 'false' }}
+      run: |
+        cd $GAPROOT
+        WGET="wget -q -N --no-check-certificate --tries=5 --waitretry=5 --retry-connrefused"
+        # For GAP >= 4.11 set DOWNLOAD, for older versions set WGET
+        make bootstrap-pkg-full DOWNLOAD="$WGET" WGET="$WGET"
 
-      - name: "Clone additional GAP packages"
-        shell: bash
-        run: |
-          # optionally: clone specific package versions, in case we need to test
-          # with development versions
-          cd $HOME/gap/pkg
-          for pkg in ${{ inputs.GAP_PKGS_TO_CLONE }}; do
-              # delete any existing variants of the package to avoid multiple versions
-              # from being compiled later on
-              rm -rf "${pkg##*/}"*
-              if [[ "$pkg" =~ ^http ]] ; then
-                  # looks like a full URL
-                  git clone "$pkg"
-              elif [[ "$pkg" =~ ^[^/]+/[^/]+$ ]] ; then
-                  # looks like ORG/REPO
-                  git clone https://github.com/"$pkg"
-              elif [[ "$pkg" =~ ^[^/]+$ ]] ; then
-                  # looks like just a REPO name
-                  git clone https://github.com/gap-packages/"$pkg"
-              else
-                  echo "Invalid package name or URL '$pkg' in GAP_PKGS_TO_CLONE"
-                  exit 1
-              fi
-          done
-
-      - name: "Build additional GAP packages"
-        shell:  bash
-        env:
-          ABI: ${{ inputs.ABI }}
-        run: |
-          # build some packages
-          BuildPackagesOptions="--strict"
-          shopt -s nocaseglob
-          cd $HOME/gap/pkg
-          for pkg in ${{inputs.GAP_PKGS_TO_BUILD}}; do
-              ../bin/BuildPackages.sh ${BuildPackagesOptions} $pkg*
-          done
+    - name: "Build GAP packages"
+      shell: bash
+      if: ${{ inputs.gap-pkgs-to-build  != '' }}
+      run: |
+        BuildPackagesOptions="--strict"
+        shopt -s nocaseglob
+        cd $GAPROOT/pkg
+        for pkg in ${{ inputs.gap-pkgs-to-build }}; do
+            ../bin/BuildPackages.sh ${BuildPackagesOptions} $pkg*
+        done
