@@ -1,53 +1,58 @@
 name: CI
 
-# Trigger the workflow on push or pull request
 on:
   push:
-    branches:
-      - master
-      - cygwin*
   pull_request:
-
-env:
-  CHERE_INVOKING: 1
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   test:
-    name: ${{ matrix.gap-branch }} ${{ matrix.ABI }} - Packages ${{ matrix.GAP_PKGS_TO_BUILD }} - HPCGAP ${{ matrix.HPCGAP }} - ${{ matrix.os }}
+    name: ${{ matrix.gap-version }} on ${{ matrix.os }} with ${{ matrix.configflags }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        gap-branch:
-          - master
-        ABI: ['']
-        GAP_PKGS_TO_BUILD:
-          - ''
-          - 'default'
-        HPCGAP: ['no']
-        include:
-          - os: ubuntu-latest
-            gap-branch: master
-            GAP_PKGS_TO_BUILD: ''
-            HPCGAP: yes
-          - os: ubuntu-latest
-            gap-branch: master
-            ABI: 32
-            GAP_PKGS_TO_BUILD: 'default'
-            HPCGAP: no
-          - os: macos-latest
-            gap-branch: master
-            GAP_PKGS_TO_BUILD: ''
-            HPCGAP: no
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        gap-version:
+          - "4.10"
+          - v4.11.1
+          - 4.12.0
+          - v4.13.0-alpha2
+          - v4
+          - latest
+          - stable-4.10
+          - stable-4.12
+          - stable-4.14
+          - default
+          - v4.15dev
+        configflags: ['--with-gmp=system', '--with-gmp=builtin']
 
     steps:
-      - uses: actions/checkout@v4
-      - if: ${{ matrix.os == 'windows-latest' }}
-        uses: gap-actions/setup-cygwin@v1
-      - uses: ./
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Setup Cygwin"
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: stertooy/setup-cygwin@official-action-and-batch
+        
+      - name: "Setup GAP"
+        uses: ./
         with:
-          GAPBRANCH: ${{ matrix.gap-branch }}
-          ABI: ${{ matrix.ABI }}
-          GAP_PKGS_TO_BUILD: ${{ matrix.GAP_PKGS_TO_BUILD }}
-          HPCGAP: ${{ matrix.HPCGAP }}
+          gap-version: ${{ matrix.gap-version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          configflags: ${{ matrix.configflags }}
+
+      - name: "Check if GAP can run"
+        shell: bash
+        run: |
+          gap -A --quitonbreak <<GAPINPUT
+            quit;
+          GAPINPUT
+
+      - name: "Check ENV for GAPROOT"
+        shell: bash
+        run: |
+          if [[ -z "$GAPROOT" ]] ; then
+            exit 1
+          fi
