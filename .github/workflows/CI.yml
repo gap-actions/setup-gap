@@ -42,7 +42,7 @@ jobs:
             HPCGAP: no
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - if: ${{ matrix.os == 'windows-latest' }}
         uses: gap-actions/setup-cygwin@v1
       - uses: ./
