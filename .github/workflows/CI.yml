@@ -39,7 +39,7 @@ jobs:
 
       - name: "Setup Cygwin"
         if: ${{ matrix.os == 'windows-latest' }}
-        uses: stertooy/setup-cygwin@official-action-and-batch
+        uses: gap-actions/setup-cygwin@v2
         
       - name: "Setup GAP"
         uses: ./
