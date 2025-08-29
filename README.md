@@ -1,4 +1,4 @@
-# setup-gap V2
+# setup-gap V3
 
 This GitHub action downloads and prepares an instance of GAP.
 It is intended to be used by the Continuous Integration (CI) action of a GAP
@@ -6,7 +6,7 @@ package, that is by an action which runs a package's test suite.
 
 ## Supported OSes
 
-This action can be run on macOS and Ubuntu.
+This action can be run on macOS, Ubuntu and Windows (when preceded by the `setup-cygwin` action).
 
 
 ## Usage
@@ -14,9 +14,8 @@ This action can be run on macOS and Ubuntu.
 The action `setup-gap` has to be called by the workflow of a GAP
 package.
 By default it
-- downloads and compiles the master branch of GAP,
-- downloads the packages distributed with GAP, and
-- compiles the packages `io` and `profiling`
+- downloads and compiles the latest release of GAP, and
+- compiles the packages `io`, `json` and `profiling`
 
 Its behaviour can be customized via the inputs below.
 
@@ -24,26 +23,92 @@ Its behaviour can be customized via the inputs below.
 
 All of the following inputs are optional.
 
-- `GAP_PKGS_TO_CLONE`:
-   - A space-separated list of the GAP packages to clone.
+- `gap-version`:
+   - The gap version or branch to build. You may specify "latest" for the latest release, or "default" for the default branch.
+   - default: `latest`
+- `repository`
+   - The GitHub repository from which to clone GAP.
+   - default: `'gap-system/gap'`
+- `configflags`:
+   - Arguments to pass to the GAP configure script.
    - default: `''`
-   - example: `'io autodoc'`
-- `GAP_PKGS_TO_BUILD`:
-   - A space-separated list of the GAP packages to build. Must include
-     `io` and `profiling`.
-   - default: `'io profiling'`
-- `GAPBRANCH`:
-   - The gap branch to clone.
-   - default: `master`
-- `HPCGAP`:
-   - Build HPC-GAP if set to `yes`.
-   - default: `no`
-- `ABI`:
-   - Set to `32` to use 32bit build flags for the package
-   - default: `''`
-- `GAP_BOOTSTRAP`
-   - Which packages to build GAP with (options: full or minimal)
-   - default: `'full'`
+- `gap-pkgs-to-build`:
+   - A space-separated list of the GAP packages to build.
+   - default: `'io json profiling'`
+
+### What's new in v3
+Version v3 contains many changes compared to version v2. Simply replacing `setup-gap@v2` by `setup-gap@v3` in an existing workflow
+will almost surely not work.
+
+#### Changes to inputs:
+ - The `GAPBRANCH` input has been replaced by `gap-version`, which accepts version numbers, branch names, or either `default` or `latest`.
+ - The input `GAP_PKGS_TO_CLONE` has been removed. This should now be done by the user in a separate step in the workflow.
+ - The input `GAP_PKGS_TO_BUILD` has been renamed to `gap-pkgs-to-build`. It can only be used to build packages distributed with GAP.
+   In addition to `IO` and `profiling`, the package `json` is now also built by default.
+ - The inputs `HPCGAP` and `ABI` have been removed, and support for both HPC-GAP and 32-bit builds has been removed.
+ - The (previously undocumented) input `CONFIGFLAGS` has been renamed to `configflags`.
+ - The input `GAP_BOOTSTRAP` has been removed. GAP will always come with all distributed packages.
+ - An input `repository` has been added, which allows building a version of GAP hosted on a repository different from `gap-system/gap`.
+
+#### Changes to functionality:
+ - There is no longer a separate branch for running this action on Windows. This action should work on Windows, assuming it is
+   preceded by version v2 or later of [setup-cygwin](https://github.com/gap-actions/setup-gap).
+ - The installation location of GAP is added to the variable `GAPROOT`, which can be used in subsequent steps in the workflow.
+ - The GAP executable is added to `PATH`, thus GAP can now always be started by calling `gap`.
+
+### Example
+
+The following is a minimal example to run this action.
+
+```yaml
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # The CI test job
+  test:
+    name: CI test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: gap-actions/setup-gap@v3
+```
+
+A more extensive example:
+
+```yaml
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # The CI test job
+  test:
+    name: CI test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        gap-version:
+          - latest
+          - v4.15.0-beta1
+          - master
+
+    steps:
+      - uses: gap-actions/setup-cygwin@v2
+        if: ${{ matrix.os == 'windows-latest' }}
+      - uses: actions/checkout@v5
+      - uses: gap-actions/setup-gap@v3
+        with:
+          gap-version: ${{ matrix.gap-version }}
+```
 
 ## Contact
 Please submit bug reports, suggestions for improvements and patches via
