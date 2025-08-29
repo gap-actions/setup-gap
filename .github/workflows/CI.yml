@@ -19,10 +19,11 @@ jobs:
           - v4.11.1
           - stable-4.12
           - v4.13.0-alpha2
+          - 4.15.0-beta1
           - 4
           - latest
           - default
-          - v4.15dev
+          - v4.16dev
         configflags: ['', '--with-gmp=builtin']
         exclude:
           - os: windows-latest
