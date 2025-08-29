@@ -32,10 +32,30 @@ All of the following inputs are optional.
 - `configflags`:
    - Arguments to pass to the GAP configure script.
    - default: `''`
-- `gpk-pkgs-to-build`:
+- `gap-pkgs-to-build`:
    - A space-separated list of the GAP packages to build.
    - default: `'io json profiling'`
 
+### What's new in v3
+Version v3 contains many changes compared to version v2. Simply replacing `setup-gap@v2` by `setup-gap@v3` in an existing workflow
+will almost surely not work.
+
+#### Changes to inputs:
+ - The `GAPBRANCH` input has been replaced by `gap-version`, which accepts version numbers, branch names, or either `default` or `latest`.
+ - The input `GAP_PKGS_TO_CLONE` has been removed. This should now be done by the user in a separate step in the workflow.
+ - The input `GAP_PKGS_TO_BUILD` has been renamed to `gap-pkgs-to-build`. It can only be used to build packages distributed with GAP.
+   In addition to `IO` and `profiling`, the package `json` is now also built by default.
+ - The inputs `HPCGAP` and `ABI` have been removed, and support for both HPC-GAP and 32-bit builds has been removed.
+ - The (previously undocumented) input `CONFIGFLAGS` has been renamed to `configflags`.
+ - The input `GAP_BOOTSTRAP` has been removed. GAP will always come with all distributed packages.
+ - An input `repository` has been added, which allows building a version of GAP hosted on a repository different from `gap-system/gap`.
+
+#### Changes to functionality:
+ - There is no longer a separate branch for running this action on Windows. This action should work on Windows, assuming it is
+   preceded by version v2 or later of [setup-cygwin](https://github.com/gap-actions/setup-gap).
+ - The installation location of GAP is added to the variable `GAPROOT`, which can be used in subsequent steps in the workflow.
+ - The GAP executable is added to `PATH`, thus GAP can now always be started by calling `gap`.
+ 
 ## Contact
 Please submit bug reports, suggestions for improvements and patches via
 the [issue tracker](https://github.com/gap-actions/setup-gap/issues).
