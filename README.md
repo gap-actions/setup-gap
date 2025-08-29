@@ -55,7 +55,61 @@ will almost surely not work.
    preceded by version v2 or later of [setup-cygwin](https://github.com/gap-actions/setup-gap).
  - The installation location of GAP is added to the variable `GAPROOT`, which can be used in subsequent steps in the workflow.
  - The GAP executable is added to `PATH`, thus GAP can now always be started by calling `gap`.
- 
+
+### Example
+
+The following is a minimal example to run this action.
+
+```yaml
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # The CI test job
+  test:
+    name: CI test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: gap-actions/setup-gap@v3
+```
+
+A more extensive example:
+
+```yaml
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # The CI test job
+  test:
+    name: CI test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        gap-version:
+          - latest
+          - v4.15.0-beta1
+          - master
+
+    steps:
+      - uses: gap-actions/setup-cygwin@v2
+        if: ${{ matrix.os == 'windows-latest' }}
+      - uses: actions/checkout@v5
+      - uses: gap-actions/setup-gap@v3
+        with:
+          gap-version: ${{ matrix.gap-version }}
+```
+
 ## Contact
 Please submit bug reports, suggestions for improvements and patches via
 the [issue tracker](https://github.com/gap-actions/setup-gap/issues).
