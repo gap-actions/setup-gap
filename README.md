@@ -35,8 +35,6 @@ All of the following inputs are optional.
 - `gpk-pkgs-to-build`:
    - A space-separated list of the GAP packages to build.
    - default: `'io json profiling'`
-- `token`:
-   - Token to authenticate with the GitHub API. You should set this to `${{ secrets.GITHUB_TOKEN }}` in your workflow.
 
 ## Contact
 Please submit bug reports, suggestions for improvements and patches via

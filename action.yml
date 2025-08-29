@@ -18,10 +18,6 @@ inputs:
     required: false
     default: 'io json profiling'
     deprecationMessage: 'This input will possibly be removed in the future, so do not rely on it too much'
-  token:
-    description: 'Token to authenticate with the GitHub API'
-    required: true
-    default: ''
 
 runs:
   using: "composite"
@@ -49,13 +45,13 @@ runs:
         if [[ -z "${{ inputs.gap-version }}" || "${{ inputs.gap-version }}" == "latest" ]] ; then
           echo "Version: latest release"
           IS_RELEASE=true
-          VERSION=$(wget --header="Authorization: Bearer ${{ inputs.token }}" -qO- "https://api.github.com/repos/${{ inputs.repository }}/releases/latest" | jq -r '.tag_name')
+          VERSION=$(wget --header="Authorization: Bearer ${{ github.token }}" -qO- "https://api.github.com/repos/${{ inputs.repository }}/releases/latest" | jq -r '.tag_name')
         elif [[ "${{ inputs.gap-version }}" =~ ^(master|main|default)$ ]] ; then
           echo "Version: default branch"
           VERSION=$(git ls-remote --symref https://github.com/${{ inputs.repository }}.git HEAD | head -n 1 | sed 's|ref: refs/heads/||; s|\tHEAD||')
         else
           echo "Checking releases"
-          GIT_RELS_JSON=$(wget --header="Authorization: Bearer ${{ inputs.token }}" -qO- "https://api.github.com/repos/${{ inputs.repository }}/releases")
+          GIT_RELS_JSON=$(wget --header="Authorization: Bearer ${{ github.token }}" -qO- "https://api.github.com/repos/${{ inputs.repository }}/releases")
           GIT_RELS=$(echo "$GIT_RELS_JSON" | jq -r '.[].tag_name' | sort -V)
           GIT_NPRS=$(echo "$GIT_RELS_JSON" | jq -r '.[] | select((.draft == false) and (.prerelease == false)) | .tag_name' | sort -V)
 
