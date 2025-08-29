@@ -46,7 +46,6 @@ jobs:
         uses: ./
         with:
           gap-version: ${{ matrix.gap-version }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           configflags: ${{ matrix.configflags }}
 
       - name: "Check if GAP can run"
