@@ -53,7 +53,7 @@ will almost surely not work.
 #### Changes to functionality:
  - There is no longer a separate branch for running this action on Windows. This action should work on Windows, assuming it is
    preceded by version v2 or later of [setup-cygwin](https://github.com/gap-actions/setup-gap).
- - The installation location of GAP is added to the variable `GAPROOT`, which can be used in subsequent steps in the workflow.
+ - The installation location of GAP is stored in the environment variable `GAPROOT`, which can be used in subsequent steps in the workflow.
  - The GAP executable is added to `PATH`, thus GAP can now always be started by calling `gap`.
 
 ### Example
@@ -76,6 +76,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: gap-actions/setup-gap@v3
+      # ... additional steps using GAP will usually follow here
 ```
 
 A more extensive example:
