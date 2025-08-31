@@ -1,4 +1,4 @@
-# setup-gap V3
+# setup-gap v3
 
 This GitHub action downloads and prepares an instance of GAP.
 It is intended to be used by the Continuous Integration (CI) action of a GAP
