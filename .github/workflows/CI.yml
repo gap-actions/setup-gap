@@ -24,6 +24,7 @@ jobs:
           - latest
           - default
           - v4.16dev
+          - stable-4.9
         configflags: ['', '--with-gmp=builtin']
         exclude:
           - os: windows-latest
@@ -51,7 +52,7 @@ jobs:
       - name: "Check if GAP can run"
         shell: bash
         run: |
-          gap -A --quitonbreak <<GAPINPUT
+          gap -A <<GAPINPUT
             quit;
           GAPINPUT
 
