@@ -51,7 +51,7 @@ jobs:
       - name: "Check if GAP can run"
         shell: bash
         run: |
-          gap -A --quitonbreak <<GAPINPUT
+          gap -A <<GAPINPUT
             quit;
           GAPINPUT
 
