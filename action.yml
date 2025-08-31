@@ -135,7 +135,7 @@ runs:
         mkdir -p /tmp/gaproot/pkg/
         ln -f -s $PWD /tmp/gaproot/pkg/
 
-        OPTS="-l /tmp/gaproot; --quitonbreak"
+        OPTS='-l "/tmp/gaproot;" --quitonbreak'
         
         if [ -f "$GAPROOT/gap" ] ; then
           EXEC="$GAPROOT/gap"
