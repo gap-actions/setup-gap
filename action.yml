@@ -129,15 +129,22 @@ runs:
         echo "::group:: Running make"
         make -j4 V=1
 
-        echo "::group:: Adding GAP to PATH"
-        # Add to PATH
-        if [ -f "$GAPROOT/gap" ] ; then
-          ln -s $GAPROOT/gap /usr/local/bin/gap
-        else
-          echo -e '#!/bin/sh\nsh '"$GAPROOT"'/bin/gap.sh "$@"\n' > /usr/local/bin/gap
-        fi
+    - name: "Make GAP executable"
+      shell: bash
+      run: |
+        mkdir -p /tmp/gaproot/pkg/
+        ln -f -s $PWD /tmp/gaproot/pkg/
 
-        # Just to be sure it's executable
+        OPTS="-l /tmp/gaproot; --quitonbreak"
+        
+        if [ -f "$GAPROOT/gap" ] ; then
+          EXEC="$GAPROOT/gap"
+        else
+          EXEC="sh $GAPROOT/bin/gap.sh"
+        fi
+        echo -e '#!/bin/bash\n'"$EXEC"' '"$OPTS"' "$@"\n' > /usr/local/bin/gap
+
+        # Make it executable
         chmod +x /usr/local/bin/gap
 
     - name: "Download GAP packages"
