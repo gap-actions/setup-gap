@@ -25,6 +25,7 @@ All of the following inputs are optional.
 
 - `gap-version`:
    - The gap version or branch to build. You may specify "latest" for the latest release, or "default" for the default branch.
+     see "Changes to inputs" under "What's new in v3" for more details.
    - default: `latest`
 - `repository`
    - The GitHub repository from which to clone GAP.
