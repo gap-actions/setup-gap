@@ -38,7 +38,7 @@ All of the following inputs are optional.
 
 ### What's new in v3
 Version v3 contains many changes compared to version v2. When replacing `setup-gap@v2` by `setup-gap@v3` in an existing workflow,
-you will have to change the inputs accordingly. We also recommend replacing branches be releases, e.g. `stable-v4.14` by `v4.14`.
+you will have to change the inputs accordingly. We also recommend replacing branches by releases, e.g. `stable-v4.14` by `v4.14`.
 
 #### Changes to inputs:
  - The `GAPBRANCH` input has been replaced by `gap-version`, which accepts the following input types:
