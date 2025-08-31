@@ -30,7 +30,7 @@ runs:
         if [[ "${{ runner.os }}" == "Linux" ]] ; then
           sudo apt-get install libgmp-dev libreadline-dev zlib1g-dev
         elif [[ "${{ runner.os }}" = "macOS" ]] ; then
-          brew install zlib autoconf && brew link zlib --force
+          brew install zlib autoconf readline && brew link zlib --force
         fi
 
     - name: "Determine GAP version"
