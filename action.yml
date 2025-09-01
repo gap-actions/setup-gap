@@ -13,11 +13,6 @@ inputs:
     description: 'Arguments to pass to the GAP configure script (e.g. --enable-debug)'
     required: false
     default: ''
-  gap-pkgs-to-build:
-    description: 'A space-separated list of the GAP packages to build'
-    required: false
-    default: 'io json profiling'
-    deprecationMessage: 'This input will possibly be removed in the future, so do not rely on it too much'
 
 runs:
   using: "composite"
@@ -155,14 +150,3 @@ runs:
         WGET="wget -q -N --no-check-certificate --tries=5 --waitretry=5 --retry-connrefused"
         # For GAP >= 4.11 set DOWNLOAD, for older versions set WGET
         make bootstrap-pkg-full DOWNLOAD="$WGET" WGET="$WGET"
-
-    - name: "Build GAP packages"
-      shell: bash
-      if: ${{ inputs.gap-pkgs-to-build  != '' }}
-      run: |
-        BuildPackagesOptions="--strict"
-        shopt -s nocaseglob
-        cd $GAPROOT/pkg
-        for pkg in ${{ inputs.gap-pkgs-to-build }}; do
-            ../bin/BuildPackages.sh ${BuildPackagesOptions} $pkg*
-        done
