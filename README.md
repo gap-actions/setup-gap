@@ -33,9 +33,6 @@ All of the following inputs are optional.
 - `configflags`:
    - Arguments to pass to the GAP configure script.
    - default: `''`
-- `gap-pkgs-to-build`:
-   - A space-separated list of the GAP packages to build.
-   - default: `'io json profiling'`
 
 ### What's new in v3
 Version v3 contains many changes compared to version v2. When replacing `setup-gap@v2` by `setup-gap@v3` in an existing workflow,
