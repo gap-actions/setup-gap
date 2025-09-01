@@ -42,7 +42,7 @@ you will have to change the inputs accordingly. We also recommend replacing bran
  - The `GAPBRANCH` input has been replaced by `gap-version`, which accepts the following input types:
    - `latest`: this will use the latest release of GAP. This will **not** point to the latest pre-release if it is more recent
      than the latest release.
-   - version numbers: e.g. `v4.14.0`, `v4.15.0-beta1`, etc. The leading `v` is optional.
+   - version numbers: e.g. `v4.14.0`, `v4.15.0-beta1`, etc. The leading `v` is optional, the oldest available release is `v4.10.0`.
    - incomplete version numbers: e.g. `v4`, `v4.10`, etc. These will be expanded to the most recent release starting with the incomplete
      version number, e.g. `v4.10` is equivalent to `v4.10.2`. This will **not** expand to pre-releases, and again the leading `v` is
      optional.
