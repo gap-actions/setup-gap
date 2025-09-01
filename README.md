@@ -52,7 +52,8 @@ you will have to change the inputs accordingly. We also recommend replacing bran
    - branch and tag names: e.g. `master`, `stable-v4.14`, etc. This will use the GAP version built from the corresponding branch or tag.
      NB: the inputs `master`, `main` and `default` will always point at the "default branch" of the repository, i.e. the branch you are
      presented with when navigating to `github.com/<owner>/<repo>`.
- - The input `GAP_PKGS_TO_CLONE` has been removed. This should now be done by the user in a separate step in the workflow.
+ - The input `GAP_PKGS_TO_CLONE` has been removed. This should now be done by the user in a separate step in the workflow, e.g. by using
+   `git clone` or the [PackageManager](https://gap-packages.github.io/PackageManager/) package. See the Examples section below.
  - The input `GAP_PKGS_TO_BUILD` has been renamed to `gap-pkgs-to-build`. It can only be used to build packages distributed with GAP.
    In addition to `IO` and `profiling`, the package `json` is now also built by default.
  - The inputs `HPCGAP` and `ABI` have been removed, and support for both HPC-GAP and 32-bit builds has been removed.
@@ -66,7 +67,7 @@ you will have to change the inputs accordingly. We also recommend replacing bran
  - The installation location of GAP is stored in the environment variable `GAPROOT`, which can be used in subsequent steps in the workflow.
  - The GAP executable is added to `PATH`, thus GAP can now always be started by calling `gap`.
 
-### Example
+### Examples
 
 The following is a minimal example to run this action.
 
@@ -119,6 +120,16 @@ jobs:
       - uses: gap-actions/setup-gap@v3
         with:
           gap-version: ${{ matrix.gap-version }}
+      - shell: bash
+        run: |
+          # Install package via 'git clone'
+          cd $HOME/.gap/pkg
+          git clone https://github.com/gap-packages/io
+      - shell: bash
+        run: |
+          # Install packages via PackageManager
+          gap -c 'LoadPackage("PackageManager"); InstallPackage("https://github.com/gap-packages/orb"); QUIT;'
+          gap -c 'LoadPackage("PackageManager"); InstallPackage("cvec"); QUIT;'
 ```
 
 ## Contact
