@@ -52,8 +52,9 @@ you will have to change the inputs accordingly. We also recommend replacing bran
    - branch and tag names: e.g. `master`, `stable-v4.14`, etc. This will use the GAP version built from the corresponding branch or tag.
      NB: the inputs `master`, `main` and `default` will always point at the "default branch" of the repository, i.e. the branch you are
      presented with when navigating to `github.com/<owner>/<repo>`.
- - The input `GAP_PKGS_TO_CLONE` has been removed. This should now be done by the user in a separate step in the workflow, e.g. by using
-   `git clone` or the [PackageManager](https://gap-packages.github.io/PackageManager/) package. See the Examples section below.
+ - The inputs `GAP_PKGS_TO_CLONE` and `GAP_PKGS_TO_BUILD` have been removed. This should now be done by the user in a separate step in
+   the workflow, e.g. by using `git clone` or the [PackageManager](https://gap-packages.github.io/PackageManager/) package. See the
+   Examples section below.
  - The input `GAP_PKGS_TO_BUILD` has been renamed to `gap-pkgs-to-build`. It can only be used to build packages distributed with GAP.
    In addition to `IO` and `profiling`, the package `json` is now also built by default.
  - The inputs `HPCGAP` and `ABI` have been removed, and support for both HPC-GAP and 32-bit builds has been removed.
@@ -125,6 +126,10 @@ jobs:
           # Install package via 'git clone'
           cd $HOME/.gap/pkg
           git clone https://github.com/gap-packages/io
+          cd io
+          sh autogen.sh
+          ./configure --with-gaproot=$GAPROOT
+          make -j4
       - shell: bash
         run: |
           # Install packages via PackageManager
