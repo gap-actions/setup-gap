@@ -135,17 +135,17 @@ runs:
         mkdir -p /tmp/gaproot/pkg/
         ln -f -s $PWD /tmp/gaproot/pkg/
 
-        OPTS='-l "/tmp/gaproot;" --quitonbreak'
-        
         if [ -f "$GAPROOT/gap" ] ; then
           EXEC="$GAPROOT/gap"
         else
           EXEC="sh $GAPROOT/bin/gap.sh"
         fi
-        echo -e '#!/bin/bash\n'"$EXEC"' '"$OPTS"' "$@"\n' > /usr/local/bin/gap
+        echo -e '#!/bin/bash\n'"$EXEC"' -l "/tmp/gaproot;" "$@"\n' > /usr/local/bin/gap
 
         # Make it executable
         chmod +x /usr/local/bin/gap
+
+        echo 'GAP="gap --quitonbreak"' >> "$GITHUB_ENV"
 
     - name: "Download GAP packages"
       shell: bash
