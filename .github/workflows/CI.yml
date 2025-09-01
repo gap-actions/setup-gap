@@ -55,9 +55,9 @@ jobs:
             quit;
           GAPINPUT
 
-      - name: "Check ENV for GAPROOT"
+      - name: "Check ENV for GAPROOT and GAP variables"
         shell: bash
         run: |
-          if [[ -z "$GAPROOT" ]] ; then
+          if [[ -z "$GAPROOT" || -z "$GAP" ]] ; then
             exit 1
           fi
