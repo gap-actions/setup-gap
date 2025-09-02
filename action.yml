@@ -38,7 +38,7 @@ runs:
 
         # We only check for releases in the official repository
         if [[ "${{ inputs.repository }}" == "gap-system/gap" ]] ; then
-          wget -q -O $RUNNER_TEMP/gap_releases.json "https://raw.githubusercontent.com/gap-system/GapWWW/refs/heads/master/_data/gap_releases.json" 
+          wget -q -O $RUNNER_TEMP/gap_releases.json https://www.gap-system.org/releases.json
           if [[ "${{ inputs.gap-version }}" == "latest" ]] ; then
             echo "Version: latest release"
             VERSION=$(cat $RUNNER_TEMP/gap_releases.json | jq -r '.[] | select(.isLatest == true) | .tagName ')
