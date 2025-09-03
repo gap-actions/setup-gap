@@ -13,9 +13,7 @@ This action can be run on macOS, Ubuntu and Windows (when preceded by the `setup
 
 The action `setup-gap` has to be called by the workflow of a GAP
 package.
-By default it
-- downloads and compiles the latest release of GAP, and
-- compiles the packages `io`, `json` and `profiling`
+By default it downloads and compiles the latest release of GAP.
 
 Its behaviour can be customized via the inputs below.
 
@@ -52,8 +50,6 @@ you will have to change the inputs accordingly. We also recommend replacing bran
  - The inputs `GAP_PKGS_TO_CLONE` and `GAP_PKGS_TO_BUILD` have been removed. This should now be done by the user in a separate step in
    the workflow, e.g. by using `git clone` or the [PackageManager](https://gap-packages.github.io/PackageManager/) package. See the
    Examples section below.
- - The input `GAP_PKGS_TO_BUILD` has been renamed to `gap-pkgs-to-build`. It can only be used to build packages distributed with GAP.
-   In addition to `IO` and `profiling`, the package `json` is now also built by default.
  - The inputs `HPCGAP` and `ABI` have been removed, and support for both HPC-GAP and 32-bit builds has been removed.
  - The (previously undocumented) input `CONFIGFLAGS` has been renamed to `configflags`.
  - The input `GAP_BOOTSTRAP` has been removed. GAP will always come with all distributed packages.
