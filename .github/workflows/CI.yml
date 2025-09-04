@@ -43,7 +43,7 @@ jobs:
       - name: "Setup Cygwin"
         if: ${{ matrix.os == 'windows-latest' }}
         uses: gap-actions/setup-cygwin@v2
-        
+
       - name: "Setup GAP"
         uses: ./
         with:
@@ -56,10 +56,9 @@ jobs:
           gap -A <<GAPINPUT
             quit;
           GAPINPUT
-
-      - name: "Check ENV for GAPROOT and GAP variables"
-        shell: bash
-        run: |
-          if [[ -z "$GAPROOT" || -z "$GAP" ]] ; then
-            exit 1
-          fi
+          $GAP -A <<GAPINPUT
+            quit;
+          GAPINPUT
+          $GAPROOT/gap -A <<GAPINPUT
+            quit;
+          GAPINPUT

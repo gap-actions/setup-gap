@@ -155,7 +155,7 @@ runs:
         # Make it executable
         chmod +x /usr/local/bin/gap
 
-        echo 'GAP="gap --quitonbreak"' >> "$GITHUB_ENV"
+        echo "GAP=gap --quitonbreak" >> "$GITHUB_ENV"
 
     - name: "Download GAP packages"
       shell: bash
