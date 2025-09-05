@@ -22,8 +22,8 @@ Its behaviour can be customized via the inputs below.
 All of the following inputs are optional.
 
 - `gap-version`:
-   - The gap version or branch to build. You may specify "latest" for the latest release, or "default" for the default branch.
-     see "Changes to inputs" under "What's new in v3" for more details.
+   - The gap version or branch to build. You may specify "latest" for the latest release, or "devel" for the development version.
+     See "Changes to inputs" under "What's new in v3" for more details.
    - default: `latest`
 - `repository`
    - The GitHub repository from which to clone GAP.
@@ -45,7 +45,7 @@ you will have to change the inputs accordingly. We also recommend replacing bran
      version number, e.g. `v4.10` is equivalent to `v4.10.2`. This will **not** expand to pre-releases, and again the leading `v` is
      optional.
    - branch and tag names: e.g. `master`, `stable-v4.14`, etc. This will use the GAP version built from the corresponding branch or tag.
-     NB: the inputs `master`, `main` and `default` will always point at the "default branch" of the repository, i.e. the branch you are
+     NB: the inputs `master`, `main` and `devel` will always point at the "default branch" of the repository, i.e. the branch you are
      presented with when navigating to `github.com/<owner>/<repo>`.
  - The inputs `GAP_PKGS_TO_CLONE` and `GAP_PKGS_TO_BUILD` have been removed. This should now be done by the user in a separate step in
    the workflow, e.g. by using `git clone` or the [PackageManager](https://gap-packages.github.io/PackageManager/) package. See the
