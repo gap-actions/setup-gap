@@ -24,7 +24,7 @@ jobs:
           - 4.15.0-beta1
           - 4
           - latest
-          - default
+          - devel
           - v4.16dev
         configflags: ['', '--with-gmp=builtin']
         exclude:
