@@ -64,8 +64,8 @@ runs:
         # If we use a different repo or didn't match a release, we try branches and tags instead
         if [[ -z "$VERSION" ]] ; then
           IS_RELEASE=false
-          # Use the repository's default branch, or autocorrect to the default one if "master" or "main" was given
-          if [[ "${{ inputs.gap-version }}" =~ ^(master|main|default)$ ]] ; then
+          # Use the repository's default branch. We autocorrect to the default one if "master" or "main" was given
+          if [[ "${{ inputs.gap-version }}" =~ ^(master|main|devel)$ ]] ; then
             echo "Version: default branch"
             VERSION=$(git ls-remote --symref https://github.com/${{ inputs.repository }}.git HEAD | head -n 1 | sed 's|ref: refs/heads/||; s|\tHEAD||')
           elif git ls-remote --heads https://github.com/${{ inputs.repository }}.git | sed 's|.*refs/heads/||' | grep -qx "${{ inputs.gap-version }}" ; then
