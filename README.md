@@ -34,7 +34,7 @@ All of the following inputs are optional.
 
 ### What's new in v3
 Version v3 contains many changes compared to version v2. When replacing `setup-gap@v2` by `setup-gap@v3` in an existing workflow,
-you will have to change the inputs accordingly. We also recommend replacing branches by releases, e.g. `stable-4.14` by `4.14`.
+you will have to change the inputs accordingly. We also recommend replacing branches by releases, e.g. `stable-4.14` by `v4.14`.
 
 #### Changes to inputs:
  - The `GAPBRANCH` input has been replaced by `gap-version`, which accepts the following input types:
@@ -43,7 +43,8 @@ you will have to change the inputs accordingly. We also recommend replacing bran
    - version numbers: e.g. `v4.14.0`, `v4.15.0-beta1`, etc. The leading `v` is optional, the oldest available release is `v4.10.0`.
    - incomplete version numbers: e.g. `v4`, `v4.10`, etc. These will be expanded to the most recent release starting with the incomplete
      version number, e.g. `v4.10` is equivalent to `v4.10.2`. This will **not** expand to pre-releases, and again the leading `v` is
-     optional.
+     optional. Use with caution: if you do not quote an input of the form `X.Y`, it will be interpreted as a float. This can cause
+     errors, because e.g. `4.10` will become the string `4.1`.
    - branch and tag names: e.g. `master`, `stable-v4.14`, etc. This will use the GAP version built from the corresponding branch or tag.
      NB: the inputs `master`, `main` and `default` will always point at the "default branch" of the repository, i.e. the branch you are
      presented with when navigating to `github.com/<owner>/<repo>`.
