@@ -127,7 +127,7 @@ jobs:
       - shell: bash
         run: |
           # Install packages via PackageManager
-          gap -c 'LoadPackage("PackageManager"); InstallPackage("https://github.com/gap-packages/orb"); QUIT;'
+          gap -c 'LoadPackage("PackageManager"); InstallPackage("https://github.com/gap-packages/orb.git"); QUIT;'
           gap -c 'LoadPackage("PackageManager"); InstallPackage("cvec"); QUIT;'
 ```
 
