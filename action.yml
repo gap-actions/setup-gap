@@ -60,7 +60,7 @@ runs:
         fi
         if [[ "${{ inputs.HPCGAP }}" != "REMOVED" ]] ; then
           error_found=true
-          echo "::error::Input 'HPC' is obsolete. Building HPC-GAP is no longer supported."
+          echo "::error::Input 'HPCGAP' is obsolete. Building HPC-GAP is no longer supported."
         fi
         if [[ "${{ inputs.ABI }}" != "REMOVED" ]] ; then
           error_found=true
