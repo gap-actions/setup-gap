@@ -13,10 +13,67 @@ inputs:
     description: 'Arguments to pass to the GAP configure script (e.g. --enable-debug)'
     required: false
     default: ''
-
+  GAP_PKGS_TO_CLONE:
+    description: 'the GAP packages to clone'
+    required: false
+    default: 'REMOVED'
+  GAP_PKGS_TO_BUILD:
+    description: 'the GAP packages to build'
+    required: false
+    default: 'REMOVED'
+  GAPBRANCH:
+    description: 'the gap branch to clone'
+    required: false
+    default: 'REMOVED'
+  HPCGAP:
+    description: 'build HPC-GAP if set to yes'
+    required: false
+    default: 'REMOVED'
+  ABI:
+    description: 'set to 32 to use 32bit build flags for the package'
+    required: false
+    default: 'REMOVED'
+  GAP_BOOTSTRAP:
+    description: 'make bootstrap-pkg-? (i.e. full/minimal)'
+    required: false
+    default: 'REMOVED'
+    
 runs:
   using: "composite"
   steps:
+
+    - name: "Error on obsolete dependencies"
+      shell: bash
+      run: |
+        error_found=false
+        if [[ "${{ inputs.GAP_PKGS_TO_CLONE }}" != "REMOVED" ]] ; then
+          error_found=true
+          echo "::error::Input 'GAP_PKGS_TO_CLONE' is obsolete. The cloning of packages must be done in a separate step in your workflow."
+        fi
+        if [[ "${{ inputs.GAP_PKGS_TO_BUILD }}" != "REMOVED" ]] ; then
+          error_found=true
+          echo "::error::Input 'GAP_PKGS_TO_BUILD' is obsolete. The building of packages must be done in a separate step in your workflow."
+        fi
+        if [[ "${{ inputs.GAPBRANCH }}" != "REMOVED" ]] ; then
+          error_found=true
+          echo "::error::Input 'GAPBRANCH' is obsolete, and needs to be converted to 'gap-version'."
+        fi
+        if [[ "${{ inputs.HPCGAP }}" != "REMOVED" ]] ; then
+          error_found=true
+          echo "::error::Input 'HPCGAP' is obsolete. Building HPC-GAP is no longer supported."
+        fi
+        if [[ "${{ inputs.ABI }}" != "REMOVED" ]] ; then
+          error_found=true
+          echo "::error::Input 'ABI' is obsolete. Building 32bit-versions of GAP is no longer supported."
+        fi
+        if [[ "${{ inputs.GAP_BOOTSTRAP }}" != "REMOVED" ]] ; then
+          error_found=true
+          echo "::error::Input 'GAP_BOOTSTRAP' is obsolete. Building GAP with minimal packages is no longer supported."
+        fi
+        if ${error_found}; then
+          echo "::error::Please see 'https://github.com/gap-actions/setup-gap/blob/main/README.md' for further information."
+          exit 1
+        fi
   
     - name: "Install dependencies"
       shell: bash
