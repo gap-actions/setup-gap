@@ -37,7 +37,7 @@ inputs:
     description: 'make bootstrap-pkg-? (i.e. full/minimal)'
     required: false
     default: 'REMOVED'
-    
+
 runs:
   using: "composite"
   steps:
@@ -74,7 +74,7 @@ runs:
           echo "::error::Please see 'https://github.com/gap-actions/setup-gap/blob/main/README.md' for further information."
           exit 1
         fi
-  
+
     - name: "Install dependencies"
       shell: bash
       if: ${{ runner.os != 'Windows' }}
@@ -132,7 +132,7 @@ runs:
             echo "Version: exact tag match"
             VERSION=${{ inputs.gap-version }}
           else
-            echo "No release, branch or tag with name ${{ inputs.gap-version }} found"
+            echo "::error::No release, branch or tag with name ${{ inputs.gap-version }} found"
             exit 1
           fi
         fi
@@ -165,7 +165,7 @@ runs:
           CHK=${CHK#\\}
           # Compare checksums
           if [[ "$SHA" != "$CHK" ]] ; then
-            echo "Checksum is wrong!"
+            echo "::error::Checksum is wrong!"
             exit 1
           fi
           # Extract archive
@@ -180,7 +180,7 @@ runs:
       run: |
         cd $GAPROOT
         CONFIGFLAGS="${{ inputs.configflags }}"
-        
+
         if [ -f "autogen.sh" ] ; then
           echo "::group:: Running autogen"
           ./autogen.sh
@@ -194,7 +194,7 @@ runs:
         ./configure $CONFIGFLAGS
 
         echo "::group:: Running make"
-        make -j4 V=1
+        make -j$(nproc) V=1
 
     - name: "Make GAP executable"
       shell: bash
