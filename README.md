@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: gap-actions/setup-gap@v3
       # ... additional steps using GAP will usually follow here
 ```
@@ -111,7 +111,7 @@ jobs:
     steps:
       - uses: gap-actions/setup-cygwin@v2
         if: ${{ matrix.os == 'windows-latest' }}
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: gap-actions/setup-gap@v3
         with:
           gap-version: ${{ matrix.gap-version }}
