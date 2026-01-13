@@ -222,3 +222,11 @@ runs:
         WGET="wget -q -N --no-check-certificate --tries=5 --waitretry=5 --retry-connrefused"
         # For GAP >= 4.11 set DOWNLOAD, for older versions set WGET
         make bootstrap-pkg-full DOWNLOAD="$WGET" WGET="$WGET"
+
+    # FIXME/HACK: for the time being, build the io package, until we have
+    # dealt with <https://github.com/gap-packages/RepnDecomp/issues/23>
+    - name: "Build the IO package"
+      shell: bash
+      run: |
+        cd ${GAPROOT}/pkg
+        ../bin/BuildPackages.sh --strict io*
