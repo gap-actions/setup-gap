@@ -154,13 +154,13 @@ runs:
         IS_RELEASE: ${{ steps.version.outputs.IS_RELEASE }}
       run: |
         if [[ "$IS_RELEASE" == "true" ]] ; then
-          WGET="wget -q -N --no-check-certificate --tries=5 --waitretry=5 --retry-connrefused -O gap.tar.gz"
+          WGET="wget -q -N --no-check-certificate --tries=5 --waitretry=5 --retry-connrefused -O gap-archive"
           URL=$(cat $RUNNER_TEMP/gap_releases.json | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION) | .url ')
           SHA=$(cat $RUNNER_TEMP/gap_releases.json | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION) | .sha256 ')
           # Download archive
           $WGET $URL
           # Recalculate checksum
-          CHK=$(shasum -a 256 gap.tar.gz | awk '{print $1}')
+          CHK=$(shasum -a 256 gap-archive | awk '{print $1}')
           # Remove leading backslash if present, this can happen on Cygwin
           CHK=${CHK#\\}
           # Compare checksums
@@ -169,8 +169,8 @@ runs:
             exit 1
           fi
           # Extract archive
-          tar xzf gap.tar.gz -C $GAPROOT --strip-components=1
-          rm gap.tar.gz
+          tar xf gap-archive -C $GAPROOT --strip-components=1
+          rm gap-archive
         else
           git clone --branch $VERSION --depth=1 --single-branch https://github.com/${{ inputs.repository }}.git $GAPROOT
         fi
