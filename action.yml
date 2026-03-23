@@ -189,12 +189,15 @@ runs:
         if [[ "${{ runner.os }}" = "macOS" ]] ; then
           BP=$(brew --prefix)
           CONFIGFLAGS="--with-gmp=$BP --with-readline=$BP/opt/readline $CONFIGFLAGS"
+          NPROC=$(sysctl -n hw.ncpu)
+        else
+          NPROC=$(nproc)
         fi
         echo "::group:: Running configure with flags $CONFIGFLAGS"
         ./configure $CONFIGFLAGS
 
         echo "::group:: Running make"
-        make -j$(nproc) V=1
+        make -j$NPROC V=1
 
     - name: "Make GAP executable"
       shell: bash
