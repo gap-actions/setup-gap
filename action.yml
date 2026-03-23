@@ -181,7 +181,7 @@ runs:
         cd $GAPROOT
         CONFIGFLAGS="${{ inputs.configflags }}"
 
-        if [ -f "autogen.sh" ] ; then
+        if [ ! -x "configure" ] ; then
           echo "::group:: Running autogen"
           ./autogen.sh
         fi
