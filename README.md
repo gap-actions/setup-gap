@@ -106,6 +106,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         gap-version:
           - 'devel'
+          - '4.16'
           - '4.15'
           - '4.14'
           - '4.13'
