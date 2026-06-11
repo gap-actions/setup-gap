@@ -48,8 +48,9 @@ you will have to change the inputs accordingly. We also recommend replacing bran
    - branch and tag names: e.g. `master`, `stable-v4.14`, etc. This will use the GAP version built from the corresponding branch or tag.
      NB: the inputs `master`, `main` and `devel` will always point at the "default branch" of the repository, i.e. the branch you are
      presented with when navigating to `github.com/<owner>/<repo>`.
- - The inputs `GAP_PKGS_TO_CLONE` and `GAP_PKGS_TO_BUILD` have been removed. This should now be done by the user in a separate step in
-   the workflow, e.g. by using `git clone` or the [PackageManager](https://gap-packages.github.io/PackageManager/) package. See the
+ - The inputs `GAP_PKGS_TO_CLONE` and `GAP_PKGS_TO_BUILD` have been removed. The former should be replaced by the
+   [install-pkg](https://github.com/gap-actions/install-pkg) action, the latter by the
+   [build-pkg](https://github.com/gap-actions/build-pkg) action. See the
    Examples section below.
  - The inputs `HPCGAP` and `ABI` have been removed, and support for both HPC-GAP and 32-bit builds has been removed.
  - The (previously undocumented) input `CONFIGFLAGS` has been renamed to `configflags`.
@@ -104,9 +105,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         gap-version:
-          - latest
-          - v4.15.0-beta1
-          - master
+          - 'devel'
+          - '4.15'
+          - '4.14'
+          - '4.13'
+          - '4.12'
 
     steps:
       - uses: gap-actions/setup-cygwin@v2
@@ -115,20 +118,13 @@ jobs:
       - uses: gap-actions/setup-gap@v3
         with:
           gap-version: ${{ matrix.gap-version }}
-      - shell: bash
-        run: |
-          # Install package via 'git clone'
-          cd $HOME/.gap/pkg
-          git clone https://github.com/gap-packages/io
-          cd io
-          sh autogen.sh
-          ./configure --with-gaproot=$GAPROOT
-          make -j4
-      - shell: bash
-        run: |
-          # Install packages via PackageManager
-          gap -c 'LoadPackage("PackageManager"); InstallPackage("https://github.com/gap-packages/orb.git"); QUIT;'
-          gap -c 'LoadPackage("PackageManager"); InstallPackage("cvec"); QUIT;'
+      - uses: gap-actions/install-pkg@v1
+        with:
+          packages: |
+            polycyclic@devel
+            gap-packages/orb
+            utils
+      - uses: gap-actions/build-pkg@v3
 ```
 
 ## Contact
