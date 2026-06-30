@@ -22,7 +22,8 @@ Its behaviour can be customized via the inputs below.
 All of the following inputs are optional.
 
 - `gap-version`:
-   - The gap version or branch to build. You may specify "latest" for the latest release, or "devel" for the development version.
+   - The gap version or branch to build. You may specify "latest" for the latest release, "devel" for the development version,
+     or "minimal" for the minimal version supported by the GAP package in the current directory.
      See "Changes to inputs" under "What's new in v3" for more details.
    - default: `latest`
 - `repository`
@@ -40,6 +41,8 @@ you will have to change the inputs accordingly. We also recommend replacing bran
  - The `GAPBRANCH` input has been replaced by `gap-version`, which accepts the following input types:
    - `latest`: this will use the latest release of GAP. This will **not** point to the latest pre-release if it is more recent
      than the latest release.
+   - `minimal`: this will use oldest version of GAP that is supported by both the GAP package in the current directory, and this
+     action.
    - version numbers: e.g. `v4.14.0`, `v4.15.0-beta1`, etc. The leading `v` is optional, the oldest available release is `v4.10.0`.
    - incomplete version numbers: e.g. `v4`, `v4.10`, etc. These will be expanded to the most recent release starting with the incomplete
      version number, e.g. `v4.10` is equivalent to `v4.10.2`. This will **not** expand to pre-releases, and again the leading `v` is

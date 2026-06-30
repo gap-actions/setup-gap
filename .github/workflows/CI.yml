@@ -33,6 +33,9 @@ jobs:
             configflags: '--with-gmp=builtin'
         include:
           - os: ubuntu-latest
+            gap-version: minimal
+            configflags: ''
+          - os: ubuntu-latest
             gap-version: latest
             configflags: ''
           - os: ubuntu-latest
@@ -49,15 +52,23 @@ jobs:
             configflags: ''
 
     steps:
+      - name: "Clone the Example package"
+        uses: actions/checkout@v7
+        if: ${{ matrix.gap-version == 'minimal' }}
+        with:
+          repository: gap-packages/example
+
       - name: "Checkout"
         uses: actions/checkout@v7
+        with:
+          path: this-action/
 
       - name: "Setup Cygwin"
         if: ${{ matrix.os == 'windows-latest' }}
         uses: gap-actions/setup-cygwin@v2
 
       - name: "Setup GAP"
-        uses: ./
+        uses: ./this-action/
         with:
           gap-version: ${{ matrix.gap-version }}
           configflags: ${{ matrix.configflags }}

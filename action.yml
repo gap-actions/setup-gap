@@ -89,6 +89,8 @@ runs:
     - name: "Determine GAP version"
       id: version
       shell: bash
+      env:
+        OLDEST_VER: "4.9"
       run: |
         VERSION=""
         IS_RELEASE=true
@@ -104,8 +106,30 @@ runs:
             GIT_RELS=$(cat $RUNNER_TEMP/gap_releases.json | jq -r '.[].tagName' | sort -V)
             GIT_NPRS=$(cat $RUNNER_TEMP/gap_releases.json | jq -r '.[] | select(.isPrerelease == false) | .tagName' | sort -V)
 
-            # Add "v" in front if missing
             REL=${{ inputs.gap-version }}
+            if [[ "$REL" == "minimal" ]]; then
+              # Get from PackageInfo.g
+              REGEX="GAP[[:space:]]*:=[[:space:]]*\"([^\"]*)\""
+
+              if [[ $(cat PackageInfo.g) =~ ${REGEX} ]]; then
+                # Get from capture group in regex
+                PKG_VER="${BASH_REMATCH[1]}"
+                echo "Version: PackageInfo.g contains \"${PKG_VER}\""
+
+                # Remove leading stuff is present
+                PKG_VER=${PKG_VER##*[>= ]}
+
+                # Replace by oldest supported version if necessary
+                REL=$(printf '%s\n' "${PKG_VER}" "${OLDEST_VER}" | sort -V | tail -n1)
+                echo "Version: turned \"${PKG_VER}\" into \"${REL}\""
+              else
+                # Hard-coded minimal version supported by this action
+                REL="${OLDEST_VER}"
+                echo "Version: could not find in PackageInfo.g, defaulting to \"${REL}\""
+              fi
+            fi
+
+            # Ensure a "v" is in front
             REL=v${REL#v}
 
             if echo "$GIT_RELS" | grep -qx "$REL" ; then
