@@ -116,7 +116,7 @@ runs:
                 PKG_VER="${BASH_REMATCH[1]}"
                 echo "Version: PackageInfo.g contains \"${PKG_VER}\""
 
-                # Remove leading stuff is present
+                # Remove leading stuff if present
                 PKG_VER=${PKG_VER##*[>= ]}
 
                 # Replace by oldest supported version if necessary
