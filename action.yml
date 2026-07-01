@@ -108,7 +108,9 @@ runs:
 
             REL=${{ inputs.gap-version }}
             if [[ "$REL" == "minimal" ]]; then
-              # Get from PackageInfo.g
+              # Attempt to extract the minimal support GAP version from
+              # PackageInfo.g via a regex (while in theory this can not always
+              # work, in practice it does work quite well)
               REGEX="GAP[[:space:]]*:=[[:space:]]*\"([^\"]*)\""
 
               if [[ $(cat PackageInfo.g) =~ ${REGEX} ]]; then
@@ -119,7 +121,7 @@ runs:
                 # Remove leading stuff if present
                 PKG_VER=${PKG_VER##*[>= ]}
 
-                # Replace by oldest supported version if necessary
+                # Ensure the extracted version is not below the oldest GAP version supported by this GAP acttion
                 REL=$(printf '%s\n' "${PKG_VER}" "${OLDEST_VER}" | sort -V | tail -n1)
                 echo "Version: turned \"${PKG_VER}\" into \"${REL}\""
               else
