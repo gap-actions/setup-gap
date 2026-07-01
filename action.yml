@@ -113,7 +113,10 @@ runs:
               # work, in practice it does work quite well)
               REGEX="GAP[[:space:]]*:=[[:space:]]*\"([^\"]*)\""
 
-              if [[ $(cat PackageInfo.g) =~ ${REGEX} ]]; then
+              if [[ ! -f "PackageInfo.g" ]]; then
+                echo "::error::Could not find PackageInfo.g."
+                exit 1
+              elif [[ $(cat PackageInfo.g) =~ ${REGEX} ]]; then
                 # Get from capture group in regex
                 PKG_VER="${BASH_REMATCH[1]}"
                 echo "Version: PackageInfo.g contains \"${PKG_VER}\""
@@ -125,9 +128,8 @@ runs:
                 REL=$(printf '%s\n' "${PKG_VER}" "${OLDEST_VER}" | sort -V | tail -n1)
                 echo "Version: turned \"${PKG_VER}\" into \"${REL}\""
               else
-                # Hard-coded minimal version supported by this action
-                REL="${OLDEST_VER}"
-                echo "Version: could not find in PackageInfo.g, defaulting to \"${REL}\""
+                echo "::error::Could not extract minimal supported version from PackageInfo.g."
+                exit 1
               fi
             fi
 
