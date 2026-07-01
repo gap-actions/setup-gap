@@ -89,6 +89,8 @@ runs:
     - name: "Determine GAP version"
       id: version
       shell: bash
+      env:
+        OLDEST_VER: "4.9"
       run: |
         VERSION=""
         IS_RELEASE=true
@@ -104,8 +106,34 @@ runs:
             GIT_RELS=$(cat $RUNNER_TEMP/gap_releases.json | jq -r '.[].tagName' | sort -V)
             GIT_NPRS=$(cat $RUNNER_TEMP/gap_releases.json | jq -r '.[] | select(.isPrerelease == false) | .tagName' | sort -V)
 
-            # Add "v" in front if missing
             REL=${{ inputs.gap-version }}
+            if [[ "$REL" == "minimal" ]]; then
+              # Attempt to extract the minimal support GAP version from
+              # PackageInfo.g via a regex (while in theory this can not always
+              # work, in practice it does work quite well)
+              REGEX="GAP[[:space:]]*:=[[:space:]]*\"([^\"]*)\""
+
+              if [[ ! -f "PackageInfo.g" ]]; then
+                echo "::error::Could not find PackageInfo.g."
+                exit 1
+              elif [[ $(cat PackageInfo.g) =~ ${REGEX} ]]; then
+                # Get from capture group in regex
+                PKG_VER="${BASH_REMATCH[1]}"
+                echo "Version: PackageInfo.g contains \"${PKG_VER}\""
+
+                # Remove leading stuff if present
+                PKG_VER=${PKG_VER##*[>= ]}
+
+                # Ensure the extracted version is not below the oldest GAP version supported by this GAP acttion
+                REL=$(printf '%s\n' "${PKG_VER}" "${OLDEST_VER}" | sort -V | tail -n1)
+                echo "Version: turned \"${PKG_VER}\" into \"${REL}\""
+              else
+                echo "::error::Could not extract minimal supported version from PackageInfo.g."
+                exit 1
+              fi
+            fi
+
+            # Ensure a "v" is in front
             REL=v${REL#v}
 
             if echo "$GIT_RELS" | grep -qx "$REL" ; then
