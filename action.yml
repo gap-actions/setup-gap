@@ -90,7 +90,7 @@ runs:
       id: version
       shell: bash
       env:
-        OLDEST_VER: "4.9"
+        OLDEST_VER: "4.9.1"
       run: |
         VERSION=""
         IS_RELEASE=true
@@ -124,9 +124,13 @@ runs:
                 # Remove leading stuff if present
                 PKG_VER=${PKG_VER##*[>= ]}
 
-                # Ensure the extracted version is not below the oldest GAP version supported by this GAP acttion
+                # Ensure the extracted version is not below the oldest GAP version supported by this GAP action
+
                 REL=$(printf '%s\n' "${PKG_VER}" "${OLDEST_VER}" | sort -V | tail -n1)
-                echo "Version: turned \"${PKG_VER}\" into \"${REL}\""
+                if [[ "${PKG_VER}" != "${REL}" ]]; then 
+                  echo "Version: ${PKG_VER} not supported by this action, using ${REL} instead"
+                fi
+                
               else
                 echo "::error::Could not extract minimal supported version from PackageInfo.g."
                 exit 1
