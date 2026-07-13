@@ -80,6 +80,7 @@ runs:
       if: ${{ runner.os != 'Windows' }}
       run: |
         if [[ "${{ runner.os }}" == "Linux" ]] ; then
+          sudo apt-get update
           sudo apt-get install libgmp-dev libreadline-dev zlib1g-dev
         elif [[ "${{ runner.os }}" = "macOS" ]] ; then
           # Note: readline is installed by default, adding it here causes warnings in GitHub runners
