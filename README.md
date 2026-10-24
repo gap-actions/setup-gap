@@ -139,5 +139,5 @@ the [issue tracker](https://github.com/gap-actions/setup-gap/issues).
 The action `setup-gap` is free software; you can redistribute
 and/or modify it under the terms of the GNU General Public License as published
 by the Free Software Foundation; either version 2 of the License, or (at your
-opinion) any later version. For details, see the file `LICENSE` distributed
+option) any later version. For details, see the file `LICENSE` distributed
 with this action or the FSF's own site.
