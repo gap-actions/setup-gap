@@ -219,6 +219,12 @@ runs:
           ./autogen.sh
         fi
 
+        # GAP < 4.15 declares ObjFunc with an empty parameter list, which
+        # C23 (the default since GCC 15) reads as taking no arguments
+        if grep -q 'typedef Obj (\* *ObjFunc) *(/\*arguments\*/)' src/*.h ; then
+          export CFLAGS="${CFLAGS:--g -O2} -std=gnu17"
+        fi
+
         if [[ "${{ runner.os }}" = "macOS" ]] ; then
           BP=$(brew --prefix)
           CONFIGFLAGS="--with-gmp=$BP --with-readline=$BP/opt/readline $CONFIGFLAGS"
