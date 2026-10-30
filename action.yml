@@ -221,7 +221,10 @@ runs:
 
         # GAP < 4.15 declares ObjFunc with an empty parameter list, which
         # C23 (the default since GCC 15) reads as taking no arguments
-        if grep -q 'typedef Obj (\* *ObjFunc) *(/\*arguments\*/)' src/*.h ; then
+        # Similarly, GMP <= 6.3.0 does not work with C23, and only GAP >= 4.17
+        # avoids this using https://github.com/gap-system/gap/pull/6738 
+        if grep -q 'typedef Obj (\* *ObjFunc) *(/\*arguments\*/)' src/*.h ||
+           ( [ -f extern/gmp/configure ] && grep -Fq 'void g(){}' extern/gmp/configure ) ; then
           export CFLAGS="${CFLAGS:--g -O2} -std=gnu17"
         fi
 
