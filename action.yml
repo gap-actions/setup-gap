@@ -217,6 +217,7 @@ runs:
         if [ ! -x "configure" ] ; then
           echo "::group:: Running autogen"
           ./autogen.sh
+          echo "::endgroup::"
         fi
 
         # GAP < 4.15 declares ObjFunc with an empty parameter list, which
@@ -234,9 +235,11 @@ runs:
         fi
         echo "::group:: Running configure with flags $CONFIGFLAGS"
         ./configure $CONFIGFLAGS
+        echo "::endgroup::"
 
         echo "::group:: Running make"
         make -j$NPROC V=1
+        echo "::endgroup::"
 
     - name: "Make GAP executable"
       shell: bash
