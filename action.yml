@@ -223,6 +223,9 @@ runs:
         # GAP < 4.15 declares ObjFunc with an empty parameter list, which
         # C23 (the default since GCC 15) reads as taking no arguments
         if grep -q 'typedef Obj (\* *ObjFunc) *(/\*arguments\*/)' src/*.h ; then
+          # Packages compile against these headers too, and those with an
+          # autoconf configure take only GAP_CPPFLAGS from sysinfo.gap
+          echo "CFLAGS=${CFLAGS:+$CFLAGS }-std=gnu17" >> "$GITHUB_ENV"
           export CFLAGS="${CFLAGS:--g -O2} -std=gnu17"
         fi
 
@@ -236,6 +239,15 @@ runs:
         echo "::group:: Running configure with flags $CONFIGFLAGS"
         ./configure $CONFIGFLAGS
         echo "::endgroup::"
+
+        # The configure of GMP <= 6.3.0 calls `void g(){}` with arguments,
+        # which C23 rejects; build only GMP as gnu17
+        if grep -q '^BUILD_GMP = yes' GNUmakefile &&
+           grep -Fq 'void g(){}' extern/gmp/configure ; then
+          echo "::group:: Building bundled GMP with -std=gnu17"
+          make -j$NPROC gmp CC="$(sed -n 's/^CC = //p' GNUmakefile) -std=gnu17"
+          echo "::endgroup::"
+        fi
 
         echo "::group:: Running make"
         make -j$NPROC V=1
