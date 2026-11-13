@@ -221,8 +221,12 @@ runs:
         fi
 
         # GAP < 4.15 declares ObjFunc with an empty parameter list, which
-        # C23 (the default since GCC 15) reads as taking no arguments
-        if grep -q 'typedef Obj (\* *ObjFunc) *(/\*arguments\*/)' src/*.h ; then
+        # C23 (the default since GCC 15) reads as taking no arguments.
+        # Add -std=gnu17 only for such compilers: clang rejects it for C++,
+        # which some packages compile with GAP_CFLAGS
+        if grep -q 'typedef Obj (\* *ObjFunc) *(/\*arguments\*/)' src/*.h &&
+           ! echo 'int f(int (*g)()) { return g(1); }' |
+             ${CC:-gcc} -fsyntax-only -x c - 2>/dev/null ; then
           # Packages compile against these headers too, and those with an
           # autoconf configure take only GAP_CPPFLAGS from sysinfo.gap
           echo "CFLAGS=${CFLAGS:+$CFLAGS }-std=gnu17" >> "$GITHUB_ENV"
