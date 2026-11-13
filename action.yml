@@ -240,6 +240,15 @@ runs:
         ./configure $CONFIGFLAGS
         echo "::endgroup::"
 
+        # The configure of GMP <= 6.3.0 calls `void g(){}` with arguments,
+        # which C23 rejects; build only GMP as gnu17
+        if grep -q '^BUILD_GMP = yes' GNUmakefile &&
+           grep -Fq 'void g(){}' extern/gmp/configure ; then
+          echo "::group:: Building bundled GMP with -std=gnu17"
+          make -j$NPROC gmp CC="$(sed -n 's/^CC = //p' GNUmakefile) -std=gnu17"
+          echo "::endgroup::"
+        fi
+
         echo "::group:: Running make"
         make -j$NPROC V=1
         echo "::endgroup::"
