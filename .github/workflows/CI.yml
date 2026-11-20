@@ -50,6 +50,12 @@ jobs:
           - os: ubuntu-latest
             gap-version: 4.15.0-beta1
             configflags: ''
+          - os: ubuntu-latest
+            gap-version: 'Custom archive'
+            configflags: ''
+            custom-archive: >-
+              https://github.com/gap-system/gap/releases/download/v4.16.1/gap-4.16.1.tar.gz
+              df7d116f03c426dac24bf7c76ea11416b29c5a48eac12f97811d80ec215f7f69
 
     steps:
       - name: "Clone the Example package"
@@ -72,6 +78,7 @@ jobs:
         with:
           gap-version: ${{ matrix.gap-version }}
           configflags: ${{ matrix.configflags }}
+          custom-archive: ${{ matrix.custom-archive }}
 
       - name: "Check if GAP can run"
         shell: bash
