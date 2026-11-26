@@ -13,6 +13,10 @@ inputs:
     description: 'Arguments to pass to the GAP configure script (e.g. --enable-debug)'
     required: false
     default: ''
+  custom-archive:
+    description: 'INTERAL USE ONLY, NOT DOCUMENTED. Custom URL and SHA to build GAP from'
+    required: false
+    default: ''
   GAP_PKGS_TO_CLONE:
     description: 'the GAP packages to clone'
     required: false
@@ -92,6 +96,7 @@ runs:
       shell: bash
       env:
         OLDEST_VER: "4.9.1"
+      if: ${{ inputs.custom-archive == '' }}
       run: |
         VERSION=""
         IS_RELEASE=true
@@ -185,11 +190,16 @@ runs:
       env:
         VERSION: ${{ steps.version.outputs.VERSION }}
         IS_RELEASE: ${{ steps.version.outputs.IS_RELEASE }}
+        CUSTOM_ARCHIVE: ${{ inputs.custom-archive }}
       run: |
-        if [[ "$IS_RELEASE" == "true" ]] ; then
+        if [[ "$IS_RELEASE" == "true" || -n "$CUSTOM_ARCHIVE" ]] ; then
           WGET="wget -q -N --no-check-certificate --tries=5 --waitretry=5 --retry-connrefused -O gap-archive"
-          URL=$(cat $RUNNER_TEMP/gap_releases.json | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION) | .url ')
-          SHA=$(cat $RUNNER_TEMP/gap_releases.json | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION) | .sha256 ')
+          if [[ -n "$CUSTOM_ARCHIVE" ]] ; then
+            read -r URL SHA <<< "${CUSTOM_ARCHIVE//$'\n'/ }"
+          else
+            URL=$(cat $RUNNER_TEMP/gap_releases.json | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION) | .url ')
+            SHA=$(cat $RUNNER_TEMP/gap_releases.json | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION) | .sha256 ')
+          fi
           # Download archive
           $WGET $URL
           # Recalculate checksum
